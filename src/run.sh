@@ -1,13 +1,13 @@
 #!/bin/bash
 
-echo "Starting AIAD runner..."
+echo "[run.sh] Starting AIAD runner..."
 
-mainClass="PingPong"
-compRes=$(sudo javac -classpath "./jade/lib/jade.jar" *.java)
+compRes=$(javac -classpath "./jade/lib/jade.jar" *.java)
 
 if [ $? -eq 0 ]
 then
-	sudo java -classpath "./jade/lib/jade.jar" jade.Boot -gui
+	echo "[run.sh] Starting Jade..."
+	java -classpath "./jade/lib/jade.jar:." jade.Boot -agents agent1:PingPong\(dat-argument\)
 else
-	echo "could not execute $mainClass because there were compilation errors"
+	echo "[run.sh] There were compilation errors, aborting..."
 fi
