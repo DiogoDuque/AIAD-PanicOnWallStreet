@@ -1,0 +1,14 @@
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    //compile 'org.activecomponents.jadex:jadex-distribution-standard:3.0.0-RC80'
+    compile 'org.activecomponents.jadex:jadex-distribution-standard:3.0.69'
+}
