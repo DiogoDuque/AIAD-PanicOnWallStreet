@@ -1,5 +1,3 @@
-package tutorial;
-
 import jadex.base.PlatformConfiguration;
 import jadex.base.Starter;
 import jadex.bridge.IComponentIdentifier;
