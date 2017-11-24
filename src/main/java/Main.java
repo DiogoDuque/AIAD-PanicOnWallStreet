@@ -1,5 +1,3 @@
-package tutorial;
-
 import jadex.base.PlatformConfiguration;
 import jadex.base.Starter;
 import jadex.bridge.IComponentIdentifier;
@@ -29,6 +27,6 @@ public class Main
 		System.out.println("Started component: " + cidM1);
 		ITuple2Future<IComponentIdentifier, Map<String,Object>> tupfutI1 = cms.createComponent("Investor1", "agent.InvestorAgent.class", null); //starts component (agent)
 		IComponentIdentifier cidI1 = tupfutI1.getFirstResult();
-		System.out.println("Started component: " + cidI1);
+		System.out.println("Started component: " + cidI1); //*/
 	}
 }
