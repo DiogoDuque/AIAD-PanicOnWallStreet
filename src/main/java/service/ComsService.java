@@ -3,9 +3,8 @@ package service;
 import jadex.bridge.IInternalAccess;
 import jadex.bridge.service.annotation.Service;
 import jadex.bridge.service.annotation.ServiceComponent;
-import jadex.bridge.service.annotation.ServiceStart;
-import jadex.commons.future.Future;
-import jadex.commons.future.IFuture;
+import jadex.commons.future.ISubscriptionIntermediateFuture;
+import jadex.commons.future.SubscriptionIntermediateFuture;
 
 @Service
 public class ComsService implements IComsService {
@@ -13,10 +12,18 @@ public class ComsService implements IComsService {
     @ServiceComponent
     private IInternalAccess agent;
 
+
     @Override
-    public IFuture<Boolean> test(boolean b) {
-        System.out.println(agent.getComponentIdentifier().getLocalName());
-        return new Future<>(!b);
+    public ISubscriptionIntermediateFuture<String> subscribeComs() {
+        SubscriptionIntermediateFuture<String> sub = new SubscriptionIntermediateFuture<>();
+        subscribers.add(sub);
+        return sub;
     }
 
+    @Override
+    public void broadcast(String msg) {
+        for(SubscriptionIntermediateFuture<String> subscriber: subscribers){
+            subscriber.addIntermediateResultIfUndone(msg);
+        }
+    }
 }

@@ -9,6 +9,6 @@ repositories {
 }
 
 dependencies {
-    //compile 'org.activecomponents.jadex:jadex-distribution-standard:3.0.0-RC80'
     compile 'org.activecomponents.jadex:jadex-distribution-standard:3.0.69'
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.7'
 }
