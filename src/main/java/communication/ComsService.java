@@ -26,7 +26,7 @@ public class ComsService implements IComsService {
     @Override
     public void broadcast(String msg) {
         for(SubscriptionIntermediateFuture<String> subscriber: subscribers){
-            subscriber.addIntermediateResultIfUndone(msg.toString());
+            subscriber.addIntermediateResultIfUndone(msg);
         }
     }
 }

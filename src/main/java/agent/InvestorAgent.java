@@ -2,6 +2,7 @@ package agent;
 
 import com.google.gson.Gson;
 import communication.Message;
+import communication.NegotiationMessage;
 import jadex.bridge.IInternalAccess;
 import jadex.bridge.service.RequiredServiceInfo;
 import jadex.bridge.service.component.IRequiredServicesFeature;
@@ -40,20 +41,16 @@ public class InvestorAgent
         sub.addIntermediateResultListener(new IntermediateDefaultResultListener<String>() {
             @Override
             public void intermediateResultAvailable(String result) {
-                Message msg = new Gson().fromJson(result, Message.class);
+                NegotiationMessage msg = new Gson().fromJson(result, NegotiationMessage.class);
 
-                if(msg.getSenderCid().equals(myCid))
-                    log("ignoring my own message...");
-                else if(msg.getReceiverCid()==null) { //broadcasted
-                    log(msg.getMsg());
-                    coms.broadcast(new Message(myCid, msg.getSenderCid(), "hi back ;) ").toJsonStr());
-                } else if(msg.getReceiverCid().equals(myCid)) //broadcasted, but for me
-                    log(msg.getMsg(),"from "+msg.getSenderCid()+" just for me *.*");
-                else log("ignoring msg not for me..."); //broadcasted, but not for me
+                if(msg.getSenderCid().equals(agent.getComponentIdentifier().getName())) //if msg was sent by me
+                    return;
+
+                log(msg.toJsonStr());
             }
         });
 
-        coms.broadcast(new Message(agent.getComponentIdentifier().getName(),"I Hello").toJsonStr());
+        coms.broadcast(new NegotiationMessage(agent.getComponentIdentifier().getName(), NegotiationMessage.NegotiationMessageType.NEW_PROPOSAL).toJsonStr());
 	}
 
 	private void log(String msg){

@@ -3,27 +3,20 @@ package communication;
 import com.google.gson.Gson;
 import com.sun.istack.internal.NotNull;
 
-import java.io.Serializable;
-
-public class Message {
+public abstract class Message {
 
     @NotNull
     private String senderCid;
 
     private String receiverCid;
 
-    @NotNull
-    private String msg;
-
-    public Message(String senderCid, String receiverCid, String msg) {
+    public Message(String senderCid, String receiverCid) {
         this.senderCid = senderCid;
         this.receiverCid = receiverCid;
-        this.msg = msg;
     }
 
-    public Message(String senderCid, String msg) {
+    public Message(String senderCid) {
         this.senderCid = senderCid;
-        this.msg = msg;
     }
 
     public String getSenderCid() {
@@ -34,11 +27,15 @@ public class Message {
         return receiverCid;
     }
 
-    public String getMsg() {
-        return msg;
-    }
-
     public String toJsonStr(){
         return new Gson().toJson(this);
+    }
+
+    public boolean sentByInvestor() {
+        return senderCid.startsWith("Investor");
+    }
+
+    public boolean sentByManager() {
+        return senderCid.startsWith("Manager");
     }
 }
