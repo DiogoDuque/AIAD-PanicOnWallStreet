@@ -67,11 +67,27 @@ public class InvestorAgent
                         ArrayList<Share> shares = new ArrayList<Share>(Arrays.asList(sharesArr));
                         Share chosenShare = shares.get(0);
                         log("Received "+msg.getSenderCid()+" shares. Sending a proposal...");
-                        coms.sendProposal(agent.getComponentIdentifier().getName(), new Proposal(chosenShare, 10).toJsonStr());
+                        coms.sendProposal(agent.getComponentIdentifier().getName(), msg.getSenderCid(), new Proposal(chosenShare, 10).toJsonStr());
+                        break;
+
+                    case PROPOSAL_ACCEPTED:
+                        if(!msg.getReceiverCid().equals(agent.getComponentIdentifier().getName())) //if proposal is not for me
+                            break;
+
+                        Proposal proposalA = new Gson().fromJson(msg.getJsonExtra(), Proposal.class);
+                        log("Proposal was accepted");
+                        break;
+
+                    case PROPOSAL_REJECTED:
+                        if(!msg.getReceiverCid().equals(agent.getComponentIdentifier().getName())) //if proposal is not for me
+                            break;
+
+                        Proposal proposalR = new Gson().fromJson(msg.getJsonExtra(), Proposal.class);
+                        log("Proposal was denied");
                         break;
 
                         default:
-                            log(msg.toJsonStr());
+                            //log(msg.toJsonStr());
                 }
             }
         });

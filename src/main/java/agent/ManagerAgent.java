@@ -70,10 +70,19 @@ public class ManagerAgent
 
                 switch (msg.getMsgType()){
                     case NEW_PROPOSAL:
+                        if(!msg.getReceiverCid().equals(agent.getComponentIdentifier().getName())) //if proposal is not for me
+                            break;
+
                         Proposal proposal = new Gson().fromJson(msg.getJsonExtra(), Proposal.class);
                         log("Received new proposal for "+proposal.getShare());
-                        // TODO
-                        //log("Proposal accepted");
+                        Random r = new Random();
+                        if(r.nextInt(2)==0){
+                            log("Accepting proposal");
+                            coms.acceptProposal(agent.getComponentIdentifier().getName(), msg.getSenderCid(), proposal.toJsonStr());
+                        } else {
+                            log("Rejecting proposal");
+                            coms.rejectProposal(agent.getComponentIdentifier().getName(), msg.getSenderCid(), proposal.toJsonStr());
+                        }
                 }
             }
         });

@@ -30,13 +30,23 @@ public class ComsService implements IComsService {
     }
 
     @Override
-    public void sendShares(String cid, String shares) {
-        broadcast(new NegotiationMessage(cid, NegotiationMessage.NegotiationMessageType.MANAGER_SHARES, shares).toJsonStr());
+    public void sendShares(String sender, String shares) {
+        broadcast(new NegotiationMessage(sender, NegotiationMessage.NegotiationMessageType.MANAGER_SHARES, shares).toJsonStr());
     }
 
     @Override
-    public void sendProposal(String cid, String proposal) {
-        broadcast(new NegotiationMessage(cid, NegotiationMessage.NegotiationMessageType.NEW_PROPOSAL, proposal).toJsonStr());
+    public void sendProposal(String sender, String receiver, String proposal) {
+        broadcast(new NegotiationMessage(sender, receiver, NegotiationMessage.NegotiationMessageType.NEW_PROPOSAL, proposal).toJsonStr());
+    }
+
+    @Override
+    public void rejectProposal(String sender, String receiver, String proposal) {
+        broadcast(new NegotiationMessage(sender, receiver, NegotiationMessage.NegotiationMessageType.PROPOSAL_REJECTED, proposal).toJsonStr());
+    }
+
+    @Override
+    public void acceptProposal(String sender, String receiver, String proposal) {
+        broadcast(new NegotiationMessage(sender, receiver, NegotiationMessage.NegotiationMessageType.PROPOSAL_ACCEPTED, proposal).toJsonStr());
     }
 
 
