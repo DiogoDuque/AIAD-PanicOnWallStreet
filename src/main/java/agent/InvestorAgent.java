@@ -1,18 +1,20 @@
 package agent;
 
+import assets.CompanyShare;
 import com.google.gson.Gson;
-import communication.Message;
 import communication.NegotiationMessage;
 import jadex.bridge.IInternalAccess;
 import jadex.bridge.service.RequiredServiceInfo;
 import jadex.bridge.service.component.IRequiredServicesFeature;
 import jadex.bridge.service.search.SServiceProvider;
-import jadex.commons.future.IFuture;
 import jadex.commons.future.ISubscriptionIntermediateFuture;
 import jadex.commons.future.IntermediateDefaultResultListener;
 import jadex.micro.annotation.*;
 import communication.ComsService;
 import communication.IComsService;
+import main.Main;
+
+import java.util.ArrayList;
 
 @RequiredServices({
         @RequiredService(name="coms", type= IComsService.class, binding=@Binding(scope= RequiredServiceInfo.SCOPE_PLATFORM))
@@ -24,12 +26,24 @@ import communication.IComsService;
 public class InvestorAgent
 {
 	@Agent
-	protected IInternalAccess agent;
+	private IInternalAccess agent;
 
 	@AgentFeature
 	private IRequiredServicesFeature reqServ;
 
-	protected IComsService coms;
+	private IComsService coms;
+
+    private int currentMoney;
+
+    private ArrayList<CompanyShare> boughtShares;
+
+    @AgentCreated
+    public void init(){
+        currentMoney = Main.STARTING_MONEY;
+        boughtShares = new ArrayList<>();
+
+        log("Just finished init!");
+    }
 
 	@AgentBody
 	public void executeBody()
@@ -50,7 +64,6 @@ public class InvestorAgent
             }
         });
 
-        coms.broadcast(new NegotiationMessage(agent.getComponentIdentifier().getName(), NegotiationMessage.NegotiationMessageType.NEW_PROPOSAL).toJsonStr());
 	}
 
 	private void log(String msg){

@@ -27,9 +27,7 @@ public abstract class Message {
         return receiverCid;
     }
 
-    public String toJsonStr(){
-        return new Gson().toJson(this);
-    }
+    public abstract String toJsonStr();
 
     public boolean sentByInvestor() {
         return senderCid.startsWith("Investor");

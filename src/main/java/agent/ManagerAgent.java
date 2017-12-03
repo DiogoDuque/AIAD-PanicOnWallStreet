@@ -1,18 +1,22 @@
 package agent;
 
+import assets.Company;
+import assets.CompanyShare;
 import com.google.gson.Gson;
-import communication.Message;
 import communication.NegotiationMessage;
 import jadex.bridge.IInternalAccess;
 import jadex.bridge.service.RequiredServiceInfo;
 import jadex.bridge.service.component.IRequiredServicesFeature;
 import jadex.bridge.service.search.SServiceProvider;
-import jadex.commons.future.IFuture;
 import jadex.commons.future.ISubscriptionIntermediateFuture;
 import jadex.commons.future.IntermediateDefaultResultListener;
 import jadex.micro.annotation.*;
 import communication.ComsService;
 import communication.IComsService;
+import main.Main;
+
+import java.util.ArrayList;
+import java.util.Random;
 
 @RequiredServices({
         @RequiredService(name="coms", type=IComsService.class, multiple=true, binding=@Binding(scope=RequiredServiceInfo.SCOPE_PLATFORM, dynamic=true))
@@ -24,12 +28,31 @@ import communication.IComsService;
 public class ManagerAgent
 {
     @Agent
-    protected IInternalAccess agent;
+    private IInternalAccess agent;
 
     @AgentFeature
     private IRequiredServicesFeature reqServ;
 
-    protected IComsService coms;
+    private IComsService coms;
+
+    private int currentMoney;
+
+    private ArrayList<CompanyShare> ownedShares;
+
+    @AgentCreated
+    public void init(){
+        currentMoney = Main.STARTING_MONEY;
+
+        Random r = new Random();
+        ownedShares = new ArrayList<>();
+        ArrayList<Company> companies = Main.getCompanies();
+        ownedShares.add(new CompanyShare(companies.get(r.nextInt(companies.size()))));
+        ownedShares.add(new CompanyShare(companies.get(r.nextInt(companies.size()))));
+        ownedShares.add(new CompanyShare(companies.get(r.nextInt(companies.size()))));
+        ownedShares.add(new CompanyShare(companies.get(r.nextInt(companies.size()))));
+
+        log("Just finished init!");
+    }
 
 	@AgentBody
 	public void executeBody()
@@ -46,12 +69,11 @@ public class ManagerAgent
                 if(msg.getSenderCid().equals(agent.getComponentIdentifier().getName())) //if msg was sent by me
                     return;
 
-                if(msg.sentByInvestor() && msg.getMsgType()== NegotiationMessage.NegotiationMessageType.NEW_PROPOSAL){
-                    coms.broadcast(new NegotiationMessage(agent.getComponentIdentifier().getName(), NegotiationMessage.NegotiationMessageType.PROPOSAL_ACCEPTED).toJsonStr());
-                }
                 log(msg.toJsonStr());
             }
         });
+
+        coms.sendShares(agent.getComponentIdentifier().getName(), new Gson().toJson(ownedShares));
 	}
 
     private void log(String msg){
