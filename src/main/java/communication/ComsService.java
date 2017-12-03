@@ -1,7 +1,5 @@
 package communication;
 
-import assets.CompanyShare;
-import com.google.gson.Gson;
 import jadex.bridge.IInternalAccess;
 import jadex.bridge.service.annotation.Service;
 import jadex.bridge.service.annotation.ServiceComponent;
@@ -18,9 +16,9 @@ public class ComsService implements IComsService {
 
     private ArrayList<SubscriptionIntermediateFuture<String>> subscribers = new ArrayList<>();
 
-    private void broadcast(String jsonMsg) {
+    private void broadcast(String msg) {
         for(SubscriptionIntermediateFuture<String> subscriber: subscribers){
-            subscriber.addIntermediateResultIfUndone(jsonMsg);
+            subscriber.addIntermediateResultIfUndone(msg);
         }
     }
 
@@ -36,7 +34,10 @@ public class ComsService implements IComsService {
         broadcast(new NegotiationMessage(cid, NegotiationMessage.NegotiationMessageType.MANAGER_SHARES, shares).toJsonStr());
     }
 
-
+    @Override
+    public void sendProposal(String cid, String proposal) {
+        broadcast(new NegotiationMessage(cid, NegotiationMessage.NegotiationMessageType.NEW_PROPOSAL, proposal).toJsonStr());
+    }
 
 
 }

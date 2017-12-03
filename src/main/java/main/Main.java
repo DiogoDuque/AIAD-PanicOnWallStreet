@@ -43,14 +43,15 @@ public class Main {
 		IExternalAccess platform = fut.get(); //assign configs
 
         IFuture<IComponentManagementService> fut1 = SServiceProvider.getService(platform, IComponentManagementService.class);
-
         IComponentManagementService cms = fut1.get();
+
 		ITuple2Future<IComponentIdentifier, Map<String,Object>> tupfutI1 = cms.createComponent("Investor1", "agent.InvestorAgent.class", null); //starts component (agent)
-		IComponentIdentifier cidI1 = tupfutI1.getFirstResult();
-		System.out.println("Started component: " + cidI1);
         ITuple2Future<IComponentIdentifier, Map<String,Object>> tupfutM1 = cms.createComponent("Manager1", "agent.ManagerAgent.class", null); //starts component (agent)
+
+        IComponentIdentifier cidI1 = tupfutI1.getFirstResult();
+		System.out.println("Started: " + cidI1);
         IComponentIdentifier cidM1 = tupfutM1.getFirstResult();
-        System.out.println("Started component: " + cidM1);
+        System.out.println("Started: " + cidM1);
 	}
 
     public static ArrayList<Company> getCompanies() {

@@ -1,5 +1,6 @@
 package assets;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -39,5 +40,10 @@ public class Company {
 
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String toString() {
+        return "{"+name+"("+(values[values.length-1]-values[0])+")}";
     }
 }

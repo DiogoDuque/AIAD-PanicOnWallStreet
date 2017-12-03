@@ -1,9 +1,10 @@
 package agent;
 
 import assets.Company;
-import assets.CompanyShare;
+import assets.Share;
 import com.google.gson.Gson;
 import communication.NegotiationMessage;
+import communication.Proposal;
 import jadex.bridge.IInternalAccess;
 import jadex.bridge.service.RequiredServiceInfo;
 import jadex.bridge.service.component.IRequiredServicesFeature;
@@ -37,7 +38,7 @@ public class ManagerAgent
 
     private int currentMoney;
 
-    private ArrayList<CompanyShare> ownedShares;
+    private ArrayList<Share> ownedShares;
 
     @AgentCreated
     public void init(){
@@ -46,12 +47,10 @@ public class ManagerAgent
         Random r = new Random();
         ownedShares = new ArrayList<>();
         ArrayList<Company> companies = Main.getCompanies();
-        ownedShares.add(new CompanyShare(companies.get(r.nextInt(companies.size()))));
-        ownedShares.add(new CompanyShare(companies.get(r.nextInt(companies.size()))));
-        ownedShares.add(new CompanyShare(companies.get(r.nextInt(companies.size()))));
-        ownedShares.add(new CompanyShare(companies.get(r.nextInt(companies.size()))));
-
-        log("Just finished init!");
+        ownedShares.add(new Share(companies.get(r.nextInt(companies.size()))));
+        ownedShares.add(new Share(companies.get(r.nextInt(companies.size()))));
+        ownedShares.add(new Share(companies.get(r.nextInt(companies.size()))));
+        ownedShares.add(new Share(companies.get(r.nextInt(companies.size()))));
     }
 
 	@AgentBody
@@ -69,11 +68,17 @@ public class ManagerAgent
                 if(msg.getSenderCid().equals(agent.getComponentIdentifier().getName())) //if msg was sent by me
                     return;
 
-                log(msg.toJsonStr());
+                switch (msg.getMsgType()){
+                    case NEW_PROPOSAL:
+                        Proposal proposal = new Gson().fromJson(msg.getJsonExtra(), Proposal.class);
+                        log("Received new proposal for "+proposal.getShare());
+                        // TODO
+                        //log("Proposal accepted");
+                }
             }
         });
 
-        coms.sendShares(agent.getComponentIdentifier().getName(), new Gson().toJson(ownedShares));
+        coms.sendShares(agent.getComponentIdentifier().getName(), new Gson().toJson(ownedShares.toArray(new Share[ownedShares.size()])));
 	}
 
     private void log(String msg){

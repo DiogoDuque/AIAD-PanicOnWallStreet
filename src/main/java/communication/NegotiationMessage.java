@@ -5,6 +5,10 @@ import com.sun.istack.internal.NotNull;
 
 public class NegotiationMessage extends Message {
 
+    public String getJsonExtra() {
+        return jsonExtra;
+    }
+
     public enum NegotiationMessageType{
         MANAGER_SHARES, // every manager starts by sending a message with all its available shares
 
@@ -45,13 +49,13 @@ public class NegotiationMessage extends Message {
         jsonExtra=json;
     }
 
+    public NegotiationMessageType getMsgType(){
+        return msgType;
+    }
+
     @Override
     public String toJsonStr(){
         return new Gson().toJson(this);
-    }
-
-    public NegotiationMessageType getMsgType(){
-        return msgType;
     }
 
 }

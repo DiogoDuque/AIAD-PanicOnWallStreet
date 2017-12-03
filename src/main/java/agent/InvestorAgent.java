@@ -1,8 +1,9 @@
 package agent;
 
-import assets.CompanyShare;
+import assets.Share;
 import com.google.gson.Gson;
 import communication.NegotiationMessage;
+import communication.Proposal;
 import jadex.bridge.IInternalAccess;
 import jadex.bridge.service.RequiredServiceInfo;
 import jadex.bridge.service.component.IRequiredServicesFeature;
@@ -14,7 +15,9 @@ import communication.ComsService;
 import communication.IComsService;
 import main.Main;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 @RequiredServices({
         @RequiredService(name="coms", type= IComsService.class, binding=@Binding(scope= RequiredServiceInfo.SCOPE_PLATFORM))
@@ -35,14 +38,12 @@ public class InvestorAgent
 
     private int currentMoney;
 
-    private ArrayList<CompanyShare> boughtShares;
+    private ArrayList<Share> boughtShares;
 
     @AgentCreated
     public void init(){
         currentMoney = Main.STARTING_MONEY;
         boughtShares = new ArrayList<>();
-
-        log("Just finished init!");
     }
 
 	@AgentBody
@@ -60,7 +61,18 @@ public class InvestorAgent
                 if(msg.getSenderCid().equals(agent.getComponentIdentifier().getName())) //if msg was sent by me
                     return;
 
-                log(msg.toJsonStr());
+                switch (msg.getMsgType()){
+                    case MANAGER_SHARES:
+                        Share[] sharesArr = new Gson().fromJson(msg.getJsonExtra(), Share[].class);
+                        ArrayList<Share> shares = new ArrayList<Share>(Arrays.asList(sharesArr));
+                        Share chosenShare = shares.get(0);
+                        log("Received "+msg.getSenderCid()+" shares. Sending a proposal...");
+                        coms.sendProposal(agent.getComponentIdentifier().getName(), new Proposal(chosenShare, 10).toJsonStr());
+                        break;
+
+                        default:
+                            log(msg.toJsonStr());
+                }
             }
         });
 

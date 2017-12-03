@@ -2,14 +2,14 @@ package assets;
 
 import com.google.gson.Gson;
 
-public class CompanyShare {
+public class Share {
 
     private final Company company;
 
     private String highestBidder;
     private String highestBidderValue;
 
-    public CompanyShare(Company company) {
+    public Share(Company company) {
         this.company = company;
     }
 
@@ -33,4 +33,9 @@ public class CompanyShare {
         this.highestBidderValue = highestBidderValue;
     }
 
+    @Override
+    public String toString() {
+        return "Share{" + company +
+                '}';
+    }
 }
