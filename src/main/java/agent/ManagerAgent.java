@@ -45,12 +45,16 @@ public class ManagerAgent
         currentMoney = Main.STARTING_MONEY;
 
         Random r = new Random();
-        ownedShares = new ArrayList<>();
+        String myCid = agent.getComponentIdentifier().getName();
         ArrayList<Company> companies = Main.getCompanies();
-        ownedShares.add(new Share(companies.get(r.nextInt(companies.size()))));
-        ownedShares.add(new Share(companies.get(r.nextInt(companies.size()))));
-        ownedShares.add(new Share(companies.get(r.nextInt(companies.size()))));
-        ownedShares.add(new Share(companies.get(r.nextInt(companies.size()))));
+        ownedShares = new ArrayList<>();
+
+        ownedShares.add(new Share(companies.get(r.nextInt(companies.size())), myCid));
+        ownedShares.add(new Share(companies.get(r.nextInt(companies.size())), myCid));
+        ownedShares.add(new Share(companies.get(r.nextInt(companies.size())), myCid));
+        ownedShares.add(new Share(companies.get(r.nextInt(companies.size())), myCid));
+
+        //log("I own these shares: "+ownedShares);
     }
 
 	@AgentBody
@@ -65,24 +69,63 @@ public class ManagerAgent
             public void intermediateResultAvailable(String result) {
                 NegotiationMessage msg = new Gson().fromJson(result, NegotiationMessage.class);
 
-                if(msg.getSenderCid().equals(agent.getComponentIdentifier().getName())) //if msg was sent by me
+                if(msg.getSenderCid().equals(myCid)) //if msg was sent by me
                     return;
 
                 switch (msg.getMsgType()){
                     case NEW_PROPOSAL:
-                        if(!msg.getReceiverCid().equals(agent.getComponentIdentifier().getName())) //if proposal is not for me
+                        if(!msg.getReceiverCid().equals(myCid)) //if proposal is not for me
                             break;
 
                         Proposal proposal = new Gson().fromJson(msg.getJsonExtra(), Proposal.class);
+                        Share share = null;
+                        for(Share s: ownedShares){
+                            if(proposal.getShare().equals(s)){
+                                share = s;
+                                break;
+                            }
+                        }
+                        if(share == null){
+                            log("ERROR: Received proposal for share not owned... Rejecting");
+                            coms.rejectProposal(myCid, msg.getSenderCid(), proposal.toJsonStr());
+                            break;
+                        }
+
                         log("Received new proposal for "+proposal.getShare());
                         Random r = new Random();
                         if(r.nextInt(2)==0){
                             log("Accepting proposal");
+                            share.setHighestBidder(msg.getSenderCid());
+                            share.setHighestBidderValue(proposal.getValue());
+                            log("updated share: "+share);
                             coms.acceptProposal(agent.getComponentIdentifier().getName(), msg.getSenderCid(), proposal.toJsonStr());
                         } else {
                             log("Rejecting proposal");
                             coms.rejectProposal(agent.getComponentIdentifier().getName(), msg.getSenderCid(), proposal.toJsonStr());
                         }
+                        break;
+
+                    case PROPOSAL_REJECTED:
+                        if(!msg.getReceiverCid().equals(myCid)) //if proposal is not for me
+                            break;
+
+                        Proposal proposalR = new Gson().fromJson(msg.getJsonExtra(), Proposal.class);
+                        Share shareR = null;
+                        for(Share s: ownedShares){
+                            if(proposalR.getShare().equals(s)){
+                                shareR = s;
+                                break;
+                            }
+                        }
+                        if(shareR == null){
+                            log("ERROR: Received rejection proposal for share not owned...");
+                            break;
+                        }
+
+                        shareR.setHighestBidder(null);
+                        shareR.setHighestBidderValue(0);
+
+                        break;
                 }
             }
         });
@@ -91,10 +134,6 @@ public class ManagerAgent
 	}
 
     private void log(String msg){
-        System.out.println(agent.getComponentIdentifier().getName()+": "+msg);
-    }
-
-    private void log(String msg, String extra){
-        System.out.println(agent.getComponentIdentifier().getName()+": "+msg+"; "+extra);
+        System.out.println(agent.getComponentIdentifier().getLocalName()+": "+msg);
     }
 }

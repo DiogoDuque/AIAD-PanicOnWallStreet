@@ -18,7 +18,7 @@ public class Company {
 		currIndex = 3;
 	}
 
-    public int getCompanyValue() {
+    public int getCurrentValue() {
         return values[currIndex];
     }
 
@@ -45,5 +45,15 @@ public class Company {
     @Override
     public String toString() {
         return "{"+name+"("+(values[values.length-1]-values[0])+")}";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Company company = (Company) o;
+
+        return name.equals(company.name);
     }
 }
