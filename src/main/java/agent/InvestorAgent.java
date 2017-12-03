@@ -1,17 +1,20 @@
 package agent;
 
+import assets.CompanyShare;
 import com.google.gson.Gson;
-import communication.Message;
+import communication.NegotiationMessage;
 import jadex.bridge.IInternalAccess;
 import jadex.bridge.service.RequiredServiceInfo;
 import jadex.bridge.service.component.IRequiredServicesFeature;
 import jadex.bridge.service.search.SServiceProvider;
-import jadex.commons.future.IFuture;
 import jadex.commons.future.ISubscriptionIntermediateFuture;
 import jadex.commons.future.IntermediateDefaultResultListener;
 import jadex.micro.annotation.*;
 import communication.ComsService;
 import communication.IComsService;
+import main.Main;
+
+import java.util.ArrayList;
 
 @RequiredServices({
         @RequiredService(name="coms", type= IComsService.class, binding=@Binding(scope= RequiredServiceInfo.SCOPE_PLATFORM))
@@ -23,12 +26,24 @@ import communication.IComsService;
 public class InvestorAgent
 {
 	@Agent
-	protected IInternalAccess agent;
+	private IInternalAccess agent;
 
 	@AgentFeature
 	private IRequiredServicesFeature reqServ;
 
-	protected IComsService coms;
+	private IComsService coms;
+
+    private int currentMoney;
+
+    private ArrayList<CompanyShare> boughtShares;
+
+    @AgentCreated
+    public void init(){
+        currentMoney = Main.STARTING_MONEY;
+        boughtShares = new ArrayList<>();
+
+        log("Just finished init!");
+    }
 
 	@AgentBody
 	public void executeBody()
@@ -40,20 +55,15 @@ public class InvestorAgent
         sub.addIntermediateResultListener(new IntermediateDefaultResultListener<String>() {
             @Override
             public void intermediateResultAvailable(String result) {
-                Message msg = new Gson().fromJson(result, Message.class);
+                NegotiationMessage msg = new Gson().fromJson(result, NegotiationMessage.class);
 
-                if(msg.getSenderCid().equals(myCid))
-                    log("ignoring my own message...");
-                else if(msg.getReceiverCid()==null) { //broadcasted
-                    log(msg.getMsg());
-                    coms.broadcast(new Message(myCid, msg.getSenderCid(), "hi back ;) ").toJsonStr());
-                } else if(msg.getReceiverCid().equals(myCid)) //broadcasted, but for me
-                    log(msg.getMsg(),"from "+msg.getSenderCid()+" just for me *.*");
-                else log("ignoring msg not for me..."); //broadcasted, but not for me
+                if(msg.getSenderCid().equals(agent.getComponentIdentifier().getName())) //if msg was sent by me
+                    return;
+
+                log(msg.toJsonStr());
             }
         });
 
-        coms.broadcast(new Message(agent.getComponentIdentifier().getName(),"I Hello").toJsonStr());
 	}
 
 	private void log(String msg){
