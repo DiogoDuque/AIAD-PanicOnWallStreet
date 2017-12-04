@@ -14,5 +14,11 @@ public interface IComsService {
 
     void acceptProposal(String sender, String receiver, String proposal);
 
+    void attemptCloseDeal(String sender, String receiver, String proposal);
+
+    void rejectCloseDeal(String sender, String receiver, String proposal);
+
+    void acceptCloseDeal(String sender, String receiver, String proposal);
+
 
 }

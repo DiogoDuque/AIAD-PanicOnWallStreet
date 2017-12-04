@@ -57,4 +57,8 @@ public class Share {
 
         return company.equals(share.company) && ownerCid.equals(share.ownerCid);
     }
+
+    public boolean isBought() {
+        return bought;
+    }
 }

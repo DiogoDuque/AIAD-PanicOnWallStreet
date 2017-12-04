@@ -87,13 +87,16 @@ public class ManagerAgent
                         }
                         if(share == null){
                             log("ERROR: Received proposal for share not owned... Rejecting");
-                            coms.rejectProposal(myCid, msg.getSenderCid(), proposal.toJsonStr());
+                            coms.rejectProposal(myCid, msg.getSenderCid(), new Proposal(share,proposal.getValue()).toJsonStr());
                             break;
+                        } else if(share.isBought()){
+                            log("Received proposal for share already owned. #sorrynotsorry");
+                            coms.rejectProposal(myCid, msg.getSenderCid(), new Proposal(share,proposal.getValue()).toJsonStr());
                         }
 
                         log("Received new proposal for "+proposal.getShare());
                         Random r = new Random();
-                        if(r.nextInt(2)==0){
+                        if(r.nextInt(2)==0){ //TODO better decision
                             log("Accepting proposal");
                             share.setHighestBidder(msg.getSenderCid());
                             share.setHighestBidderValue(proposal.getValue());

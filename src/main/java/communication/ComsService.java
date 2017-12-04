@@ -49,5 +49,18 @@ public class ComsService implements IComsService {
         broadcast(new NegotiationMessage(sender, receiver, NegotiationMessage.NegotiationMessageType.PROPOSAL_ACCEPTED, proposal).toJsonStr());
     }
 
+    @Override
+    public void attemptCloseDeal(String sender, String receiver, String proposal) {
+        broadcast(new NegotiationMessage(sender, receiver, NegotiationMessage.NegotiationMessageType.CLOSE_DEAL, proposal).toJsonStr());
+    }
 
+    @Override
+    public void rejectCloseDeal(String sender, String receiver, String proposal) {
+        broadcast(new NegotiationMessage(sender, receiver, NegotiationMessage.NegotiationMessageType.CLOSE_DEAL_REJECT, proposal).toJsonStr());
+    }
+
+    @Override
+    public void acceptCloseDeal(String sender, String receiver, String proposal) {
+        broadcast(new NegotiationMessage(sender, receiver, NegotiationMessage.NegotiationMessageType.CLOSE_DEAL_ACCEPT, proposal).toJsonStr());
+    }
 }
