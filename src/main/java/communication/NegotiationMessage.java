@@ -13,7 +13,6 @@ public class NegotiationMessage extends Message {
         MANAGER_SHARES, // every manager starts by sending a message with all its available shares
 
         NEW_PROPOSAL, // send a new proposal
-        RENEGOTIATE_PROPOSAL, // attempt to renegotiate proposal //is this needed?
         PROPOSAL_REJECTED, // proposal rejected
         PROPOSAL_ACCEPTED, // proposal accepted
 

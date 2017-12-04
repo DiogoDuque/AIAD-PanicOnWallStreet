@@ -38,12 +38,13 @@ public class InvestorAgent
 
     private int currentMoney;
 
-    private ArrayList<Share> boughtShares;
+    private ArrayList<Share> boughtShares, proposedShares;
 
     @AgentCreated
     public void init(){
         currentMoney = Main.STARTING_MONEY;
         boughtShares = new ArrayList<>();
+        proposedShares = new ArrayList<>();
     }
 
 	@AgentBody
@@ -66,28 +67,31 @@ public class InvestorAgent
                         Share[] sharesArr = new Gson().fromJson(msg.getJsonExtra(), Share[].class);
                         ArrayList<Share> shares = new ArrayList<Share>(Arrays.asList(sharesArr));
                         Share chosenShare = shares.get(0);
-                        log("Received "+msg.getSenderCid()+" shares. Sending a proposal...");
-                        coms.sendProposal(agent.getComponentIdentifier().getName(), msg.getSenderCid(), new Proposal(chosenShare, 10).toJsonStr());
+                        log("Received "+msg.getSenderCid()+" shares. Sending a proposal for share "+chosenShare);
+                        coms.sendProposal(myCid, msg.getSenderCid(), new Proposal(chosenShare, 10).toJsonStr());
                         break;
 
                     case PROPOSAL_ACCEPTED:
-                        if(!msg.getReceiverCid().equals(agent.getComponentIdentifier().getName())) //if proposal is not for me
+                        if(!msg.getReceiverCid().equals(myCid)) //if proposal is not for me
                             break;
 
                         Proposal proposalA = new Gson().fromJson(msg.getJsonExtra(), Proposal.class);
+                        proposedShares.add(proposalA.getShare());
                         log("Proposal was accepted");
                         break;
 
                     case PROPOSAL_REJECTED:
-                        if(!msg.getReceiverCid().equals(agent.getComponentIdentifier().getName())) //if proposal is not for me
+                        if(!msg.getReceiverCid().equals(myCid)) //if proposal is not for me
                             break;
 
                         Proposal proposalR = new Gson().fromJson(msg.getJsonExtra(), Proposal.class);
+                        proposedShares.remove(proposalR.getShare());
                         log("Proposal was denied");
                         break;
 
                         default:
                             //log(msg.toJsonStr());
+                            break;
                 }
             }
         });
@@ -95,10 +99,6 @@ public class InvestorAgent
 	}
 
 	private void log(String msg){
-	    System.out.println(agent.getComponentIdentifier().getName()+": "+msg);
-    }
-
-    private void log(String msg, String extra){
-        System.out.println(agent.getComponentIdentifier().getName()+": "+msg+"; "+extra);
+	    System.out.println(agent.getComponentIdentifier().getLocalName()+": "+msg);
     }
 }
