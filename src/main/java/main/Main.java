@@ -18,6 +18,9 @@ public class Main {
 
     public static final int STARTING_MONEY = 0;
 
+    public static final int N_INVESTORS = 1;
+    public static final int N_MANAGERS = 1;
+
     private static ArrayList<Company> companies;
 
 	public static void main(String[] args)
@@ -45,13 +48,18 @@ public class Main {
         IFuture<IComponentManagementService> fut1 = SServiceProvider.getService(platform, IComponentManagementService.class);
         IComponentManagementService cms = fut1.get();
 
-		ITuple2Future<IComponentIdentifier, Map<String,Object>> tupfutI1 = cms.createComponent("Investor1", "agent.InvestorAgent.class", null); //starts component (agent)
-        ITuple2Future<IComponentIdentifier, Map<String,Object>> tupfutM1 = cms.createComponent("Manager1", "agent.ManagerAgent.class", null); //starts component (agent)
+        for(int i=1; i<=N_MANAGERS; i++){
+            ITuple2Future<IComponentIdentifier, Map<String,Object>> tupfutM = cms.createComponent("Manager"+i, "agent.ManagerAgent.class", null); //starts component (agent)
+            IComponentIdentifier cidM = tupfutM.getFirstResult();
+            System.out.println("Started: " + cidM);
+        }
 
-        IComponentIdentifier cidI1 = tupfutI1.getFirstResult();
-		System.out.println("Started: " + cidI1);
-        IComponentIdentifier cidM1 = tupfutM1.getFirstResult();
-        System.out.println("Started: " + cidM1);
+        for(int i=1; i<=N_INVESTORS; i++){
+            ITuple2Future<IComponentIdentifier, Map<String,Object>> tupfutI = cms.createComponent("Investor"+i, "agent.InvestorAgent.class", null); //starts component (agent)
+            IComponentIdentifier cidI = tupfutI.getFirstResult();
+            System.out.println("Started: " + cidI);
+        }
+
 	}
 
     public static ArrayList<Company> getCompanies() {
