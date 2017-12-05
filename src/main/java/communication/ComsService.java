@@ -1,10 +1,12 @@
 package communication;
 
+import agent.TimerAgent;
 import jadex.bridge.IInternalAccess;
 import jadex.bridge.service.annotation.Service;
 import jadex.bridge.service.annotation.ServiceComponent;
 import jadex.commons.future.ISubscriptionIntermediateFuture;
 import jadex.commons.future.SubscriptionIntermediateFuture;
+import main.Main;
 
 import java.util.ArrayList;
 
@@ -26,6 +28,7 @@ public class ComsService implements IComsService {
     public ISubscriptionIntermediateFuture<String> subscribeComs() {
         SubscriptionIntermediateFuture<String> sub = new SubscriptionIntermediateFuture<>();
         subscribers.add(sub);
+        System.out.println(subscribers.size());
         return sub;
     }
 
@@ -62,5 +65,13 @@ public class ComsService implements IComsService {
     @Override
     public void acceptCloseDeal(String sender, String receiver, String proposal) {
         broadcast(new NegotiationMessage(sender, receiver, NegotiationMessage.NegotiationMessageType.CLOSE_DEAL_ACCEPT, proposal).toJsonStr());
+    }
+
+    @Override
+    public boolean askShares(String sender){
+        if(subscribers.size() < Main.N_INVESTORS + Main.N_MANAGERS + 1)
+            return false;
+        broadcast(new NegotiationMessage(sender, NegotiationMessage.NegotiationMessageType.ASK_SHARES).toJsonStr());
+        return true;
     }
 }

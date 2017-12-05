@@ -51,15 +51,18 @@ public class Main {
         for(int i=1; i<=N_MANAGERS; i++){
             ITuple2Future<IComponentIdentifier, Map<String,Object>> tupfutM = cms.createComponent("Manager"+i, "agent.ManagerAgent.class", null); //starts component (agent)
             IComponentIdentifier cidM = tupfutM.getFirstResult();
-            System.out.println("Started: " + cidM);
+            System.out.println("Main: started " + cidM);
         }
 
         for(int i=1; i<=N_INVESTORS; i++){
             ITuple2Future<IComponentIdentifier, Map<String,Object>> tupfutI = cms.createComponent("Investor"+i, "agent.InvestorAgent.class", null); //starts component (agent)
             IComponentIdentifier cidI = tupfutI.getFirstResult();
-            System.out.println("Started: " + cidI);
+            System.out.println("Main: started " + cidI);
         }
 
+        ITuple2Future<IComponentIdentifier, Map<String,Object>> tupfutT = cms.createComponent("Timer", "agent.TimerAgent.class", null); //starts component (agent)
+        IComponentIdentifier cidT = tupfutT.getFirstResult();
+        System.out.println("Main: started " + cidT);
 	}
 
     public static ArrayList<Company> getCompanies() {

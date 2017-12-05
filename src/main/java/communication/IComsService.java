@@ -20,5 +20,5 @@ public interface IComsService {
 
     void acceptCloseDeal(String sender, String receiver, String proposal);
 
-
+    boolean askShares(String sender);
 }

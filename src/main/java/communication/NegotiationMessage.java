@@ -10,6 +10,7 @@ public class NegotiationMessage extends Message {
     }
 
     public enum NegotiationMessageType{
+        ASK_SHARES, // called by timerAgent to ask every manager for its shares
         MANAGER_SHARES, // every manager starts by sending a message with all its available shares
 
         NEW_PROPOSAL, // send a new proposal
