@@ -4,6 +4,10 @@ import assets.Share;
 import com.google.gson.Gson;
 import communication.NegotiationMessage;
 import communication.Proposal;
+import jadex.bdiv3.annotation.Goal;
+import jadex.bdiv3.annotation.Plan;
+import jadex.bdiv3.annotation.Trigger;
+import jadex.bdiv3.features.IBDIAgentFeature;
 import jadex.bridge.IInternalAccess;
 import jadex.bridge.service.RequiredServiceInfo;
 import jadex.bridge.service.component.IRequiredServicesFeature;
@@ -25,10 +29,13 @@ import java.util.Arrays;
 public class InvestorAgent
 {
 	@Agent
-	private IInternalAccess agent;
+	protected IInternalAccess agent;
 
 	@AgentFeature
 	private IRequiredServicesFeature reqServ;
+
+    @AgentFeature
+    protected IBDIAgentFeature agentFeature;
 
 	private IComsService coms;
 
@@ -61,9 +68,22 @@ public class InvestorAgent
         });
     }
 
+    @Goal
+    public class BuySharesGoal {
+        public BuySharesGoal() {
+
+        }
+    }
+
+    @Plan(trigger=@Trigger(goals=BuySharesGoal.class))
+    public void buyShare() {
+        System.out.println("teste correu bem, I guess");
+    }
+
 	@AgentBody
 	public void executeBody()
 	{
+        BuySharesGoal goal = (BuySharesGoal)agentFeature.dispatchTopLevelGoal(new BuySharesGoal()).get();
 	}
 
     private void parseNegotiationMessage(NegotiationMessage msg) {
