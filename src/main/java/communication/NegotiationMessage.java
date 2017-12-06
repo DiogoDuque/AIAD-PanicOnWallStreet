@@ -1,7 +1,6 @@
 package communication;
 
 import com.google.gson.Gson;
-import com.sun.istack.internal.NotNull;
 
 public class NegotiationMessage extends Message {
 
@@ -22,7 +21,6 @@ public class NegotiationMessage extends Message {
         CLOSE_DEAL_REJECT // reject deal, but the proposal remains
     }
 
-    @NotNull
     private NegotiationMessageType msgType; // message type. this is also important for interpreting the jsonExtra
 
     private String jsonExtra;  // contains extra information regarding the message type

@@ -49,13 +49,13 @@ public class Main {
         IComponentManagementService cms = fut1.get();
 
         for(int i=1; i<=N_MANAGERS; i++){
-            ITuple2Future<IComponentIdentifier, Map<String,Object>> tupfutM = cms.createComponent("Manager"+i, "agent.ManagerAgent.class", null); //starts component (agent)
+            ITuple2Future<IComponentIdentifier, Map<String,Object>> tupfutM = cms.createComponent("Manager"+i, "agent.ManagerBDI.class", null); //starts component (agent)
             IComponentIdentifier cidM = tupfutM.getFirstResult();
             System.out.println("Main: started " + cidM);
         }
 
         for(int i=1; i<=N_INVESTORS; i++){
-            ITuple2Future<IComponentIdentifier, Map<String,Object>> tupfutI = cms.createComponent("Investor"+i, "agent.InvestorAgent.class", null); //starts component (agent)
+            ITuple2Future<IComponentIdentifier, Map<String,Object>> tupfutI = cms.createComponent("Investor"+i, "agent.InvestorBDI.class", null); //starts component (agent)
             IComponentIdentifier cidI = tupfutI.getFirstResult();
             System.out.println("Main: started " + cidI);
         }

@@ -1,11 +1,9 @@
 package communication;
 
 import com.google.gson.Gson;
-import com.sun.istack.internal.NotNull;
 
 public abstract class Message {
 
-    @NotNull
     private String senderCid;
 
     private String receiverCid;

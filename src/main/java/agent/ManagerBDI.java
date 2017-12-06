@@ -23,7 +23,7 @@ import java.util.Random;
         @ProvidedService(type=IComsService.class, implementation=@Implementation(ComsService.class))
 })
 @Agent
-public class ManagerAgent
+public class ManagerBDI
 {
     @Agent
     private IInternalAccess agent;
