@@ -41,6 +41,14 @@ public class Share {
         bought = true;
     }
 
+    public boolean isBought() {
+        return bought;
+    }
+
+    public float getShareAverageValue(){
+        return company.getAverageNextValue();
+    }
+
     @Override
     public String toString() {
         return "Share{" + ownerCid + " -> " + company +
@@ -56,9 +64,5 @@ public class Share {
         Share share = (Share) o;
 
         return company.equals(share.company) && ownerCid.equals(share.ownerCid);
-    }
-
-    public boolean isBought() {
-        return bought;
     }
 }

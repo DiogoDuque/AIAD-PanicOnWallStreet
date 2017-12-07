@@ -8,7 +8,7 @@ public class Company {
     private final int[] values; // every value this share's companies can assume
     private final int[] diceValues; // possible flutuation values that can be applied between rounds
     private int currIndex; // current values' index
-    
+
     public Company(String name, int[] values, int[] diceValues){
 		this.name = name;
 		this.values = values;
@@ -18,6 +18,22 @@ public class Company {
 
     public int getCurrentValue() {
         return values[currIndex];
+    }
+
+    public float getAverageNextValue() {
+        int averageValue=0;
+
+        for(int diceVal: diceValues){
+            int index = currIndex+diceVal;
+            if(index<0)
+                index = 0;
+            else if(index >= values.length)
+                index = values.length-1;
+
+            averageValue += values[index];
+        }
+
+        return (float)(averageValue/6);
     }
 
     public int rollDice() {

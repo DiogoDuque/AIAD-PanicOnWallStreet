@@ -98,16 +98,34 @@ public class InvestorBDI
         BuySharesGoal goal = (BuySharesGoal)agentFeature.dispatchTopLevelGoal(new BuySharesGoal()).get();
 	}
 
+	private float evaluateAgent(InvestorInfo info){
+        int money = info.getCurrentMoney();
+
+        ArrayList<Share> boughtShares = info.getBoughtShares();
+        float boughtSharesValue = 0;
+        for(Share s: boughtShares){
+            boughtSharesValue += s.getShareAverageValue();
+        }
+
+        ArrayList<Share> proposedShares = info.getProposedShares();
+        float proposedSharesValue = 0;
+        for(Share s: proposedShares){
+            proposedSharesValue += s.getShareAverageValue();
+        }
+
+        return money*1.1f + boughtSharesValue + proposedSharesValue*0.4f;
+    }
+
     private void parseNegotiationMessage(NegotiationMessage msg) {
         String myCid = agent.getComponentIdentifier().getLocalName();
         if(msg.getSenderCid().equals(myCid)) { //if msg was sent by me
-            log("Received my message");
+            //log("Received my message");
             return;
-        } else log("Received "+msg.getMsgType()+" from "+msg.getSenderCid());
+        }// else log("Received "+msg.getMsgType()+" from "+msg.getSenderCid());
 
         switch (msg.getMsgType()){
             case ASK_INFO:
-                InvestorInfo info = new InvestorInfo(myCid, currentMoney, boughtShares, proposedShares);
+                InvestorInfo info = new InvestorInfo(currentMoney, boughtShares, proposedShares);
                 coms.sendInvestorInfo(myCid, info.toJsonStr());
                 break;
 

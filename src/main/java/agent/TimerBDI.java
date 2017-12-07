@@ -59,7 +59,7 @@ public class TimerBDI {
     public void body() {
         String myCid = agent.getComponentIdentifier().getName();
         gamePhase = GamePhase.NEGOTIATION;
-        log("Game is about to start. Asking for shares to be publicly displayed");
+        log("Game is about to start");
     }
 
     @Plan(trigger = @Trigger(factchangeds ="currentTime"))
@@ -71,7 +71,6 @@ public class TimerBDI {
 
         switch (gamePhase){
             case NEGOTIATION:
-                log("GP");
                 if(timeAfterPhaseStart < Main.NEGOTIATION_PHASE_DURATION)
                     coms.askInfo(agent.getComponentIdentifier().getName());
                 else gamePhase = GamePhase.INVESTOR_INCOME;
