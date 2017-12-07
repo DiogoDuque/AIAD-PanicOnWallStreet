@@ -7,8 +7,19 @@ import java.util.ArrayList;
 
 public class InvestorInfo {
 
+    /**
+     * Current money.
+     */
     private final int currentMoney;
+
+    /**
+     * Shares acquired from a manager.
+     */
     private final ArrayList<Share> boughtShares;
+
+    /**
+     * Shares whose proposals have been accepted by managers. However, they can be rejected at any time, so this is a very volatile list.
+     */
     private final ArrayList<Share> proposedShares;
 
     public InvestorInfo(int currentMoney, ArrayList<Share> boughtShares, ArrayList<Share> proposedShares){

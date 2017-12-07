@@ -19,6 +19,9 @@ import main.Main;
 @Agent
 public class TimerBDI {
 
+    /**
+     * All the possible game phases.
+     */
     public enum GamePhase {
         NEGOTIATION,
         INVESTOR_INCOME,
@@ -33,13 +36,25 @@ public class TimerBDI {
     @AgentFeature
     private IRequiredServicesFeature reqServ;
 
+    /**
+     * Keeps track of the current system time.
+     */
     @Belief(updaterate= Main.INFO_REFRESH_RATE)
     protected long currentTime = System.currentTimeMillis();
 
+    /**
+     * Will always contain the system time at which the current Game Phase started.
+     */
     private long phaseStartTime =-1;
 
+    /**
+     * Communication service.
+     */
     private IComsService coms;
 
+    /**
+     * Current Game Phase.
+     */
     private static GamePhase gamePhase;
 
     @AgentCreated
@@ -62,8 +77,11 @@ public class TimerBDI {
         log("Game is about to start");
     }
 
+    /**
+     * Called periodically to keep checking when to change game phase. Meanwhile, it might do some periodic calls, depending on the current game phase.
+     */
     @Plan(trigger = @Trigger(factchangeds ="currentTime"))
-    protected void timed(){
+    protected void timedCall(){
         if(phaseStartTime ==-1)
             phaseStartTime =currentTime;
 

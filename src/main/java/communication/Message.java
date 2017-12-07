@@ -1,11 +1,15 @@
 package communication;
 
-import com.google.gson.Gson;
-
 public abstract class Message {
 
+    /**
+     * Sender's cid.
+     */
     private String senderCid;
 
+    /**
+     * Receiver's cid.
+     */
     private String receiverCid;
 
     public Message(String senderCid, String receiverCid) {
@@ -25,13 +29,9 @@ public abstract class Message {
         return receiverCid;
     }
 
+    /**
+     * Converts this object to a JSON string.
+     * @return JSON string of this object.
+     */
     public abstract String toJsonStr();
-
-    public boolean sentByInvestor() {
-        return senderCid.startsWith("Investor");
-    }
-
-    public boolean sentByManager() {
-        return senderCid.startsWith("Manager");
-    }
 }

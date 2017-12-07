@@ -14,8 +14,15 @@ public class ComsService implements IComsService {
     @ServiceComponent
     private IInternalAccess agent;
 
+    /**
+     * Contains every subscription made to this service.
+     */
     private ArrayList<SubscriptionIntermediateFuture<String>> subscribers = new ArrayList<>();
 
+    /**
+     * Broadcasts a message to every subscriber of this service.
+     * @param msg message to be broadcasted.
+     */
     private void broadcast(String msg) {
         for(SubscriptionIntermediateFuture<String> subscriber: subscribers){
             subscriber.addIntermediateResultIfUndone(msg);

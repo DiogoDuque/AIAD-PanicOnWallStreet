@@ -4,10 +4,25 @@ import java.util.Random;
 
 public class Company {
 
-    private final String name; // company's name
-    private final int[] values; // every value this share's companies can assume
-    private final int[] diceValues; // possible flutuation values that can be applied between rounds
-    private int currIndex; // current values' index
+    /**
+     * Company's name.
+     */
+    private final String name;
+
+    /**
+     * All possible values this share's companies can assume.
+     */
+    private final int[] values;
+
+    /**
+     * Possible flutuation values that can be applied between rounds.
+     */
+    private final int[] diceValues;
+
+    /**
+     * Current company's value index.
+     */
+    private int currIndex;
 
     public Company(String name, int[] values, int[] diceValues){
 		this.name = name;
@@ -16,11 +31,15 @@ public class Company {
 		currIndex = 3;
 	}
 
-    public int getCurrentValue() {
+    int getCurrentValue() {
         return values[currIndex];
     }
 
-    public float getAverageNextValue() {
+    /**
+     * Calculates the average value that will come out when the dices are rolled.
+     * @return average of the next value after dice roll.
+     */
+    float getAverageNextValue() {
         int averageValue=0;
 
         for(int diceVal: diceValues){
@@ -36,6 +55,10 @@ public class Company {
         return (float)(averageValue/6);
     }
 
+    /**
+     * Rolls the dice for this company, making its value change.
+     * @return new value for this company's shares.
+     */
     public int rollDice() {
         // roll the dice
         Random r = new Random();
