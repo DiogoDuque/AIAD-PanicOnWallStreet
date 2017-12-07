@@ -18,8 +18,12 @@ public class Main {
 
     public static final int STARTING_MONEY = 0;
 
-    public static final int N_INVESTORS = 1;
-    public static final int N_MANAGERS = 1;
+    public static final int N_INVESTORS = 1; // number of investors in the game
+    public static final int N_MANAGERS = 1; // number of managers in the game
+
+    public static final int N_ROUNDS = 3; // number of rounds the game will have
+    public static final int INFO_REFRESH_RATE = 500; // in milis // 500 milis = 0.5s
+    public static final int NEGOTIATION_PHASE_DURATION = 10000; // in milis
 
     private static ArrayList<Company> companies;
 
@@ -60,7 +64,7 @@ public class Main {
             System.out.println("Main: started " + cidI);
         }
 
-        ITuple2Future<IComponentIdentifier, Map<String,Object>> tupfutT = cms.createComponent("Timer", "agent.TimerAgent.class", null); //starts component (agent)
+        ITuple2Future<IComponentIdentifier, Map<String,Object>> tupfutT = cms.createComponent("Timer", "agent.TimerBDI.class", null); //starts component (agent)
         IComponentIdentifier cidT = tupfutT.getFirstResult();
         System.out.println("Main: started " + cidT);
 	}

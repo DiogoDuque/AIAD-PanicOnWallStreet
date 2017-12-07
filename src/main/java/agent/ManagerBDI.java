@@ -31,10 +31,19 @@ public class ManagerBDI
     @AgentFeature
     private IRequiredServicesFeature reqServ;
 
+    /**
+     * Communication service.
+     */
     private IComsService coms;
 
+    /**
+     * Current amount of money.
+     */
     private int currentMoney;
 
+    /**
+     * Owned shares. These shares can be bought by investors, but they stay with the manager for further accounting purposes.
+     */
     private ArrayList<Share> ownedShares;
 
     @AgentCreated
@@ -54,11 +63,10 @@ public class ManagerBDI
         this.coms = (IComsService)reqServ.getRequiredService("coms").get();
         IComsService iComs = SServiceProvider.getService(agent,IComsService.class, RequiredServiceInfo.SCOPE_PLATFORM).get();
         ISubscriptionIntermediateFuture<String> sub = iComs.subscribeComs();
-        log("subscribed");
         sub.addIntermediateResultListener(new IntermediateDefaultResultListener<String>() {
             @Override
             public void intermediateResultAvailable(String result) {
-                switch(TimerAgent.getGamePhase()){
+                switch(TimerBDI.getGamePhase()){
                     case NEGOTIATION:
                         NegotiationMessage nMsg = new Gson().fromJson(result, NegotiationMessage.class);
                         parseNegotiationMessage(nMsg);
@@ -73,17 +81,26 @@ public class ManagerBDI
 	{
 	}
 
+    /**
+     * Called as a parser of messages in the Negotiation phase. Receives a message and deals with it the best way it can.
+     * @param msg negotation message to be parsed.
+     */
     private void parseNegotiationMessage(NegotiationMessage msg) {
         String myCid = agent.getComponentIdentifier().getName();
         if(msg.getSenderCid().equals(myCid)) //if msg was sent by me
             return;
 
         switch (msg.getMsgType()){
-            case ASK_SHARES:
-                coms.sendShares(agent.getComponentIdentifier().getName(), new Gson().toJson(ownedShares.toArray(new Share[ownedShares.size()])));
+            case ASK_INFO:
+                ArrayList<Share> shares = new ArrayList<>();
+                for(Share s: ownedShares){
+                    if(!s.isBought())
+                        shares.add(s);
+                }
+                coms.sendShares(agent.getComponentIdentifier().getName(), new Gson().toJson(shares.toArray(new Share[shares.size()])));
                 break;
 
-            case NEW_PROPOSAL:
+            /*case NEW_PROPOSAL:
                 if(!msg.getReceiverCid().equals(myCid)) //if proposal is not for me
                     break;
 
@@ -138,10 +155,14 @@ public class ManagerBDI
                 shareR.setHighestBidder(null);
                 shareR.setHighestBidderValue(0);
 
-                break;
+                break;*/
         }
     }
 
+    /**
+     * A logging function. Used mainly for debugging and showing what's happening inside this specific agent.
+     * @param msg message to be displayed.
+     */
     private void log(String msg){
         System.out.println(agent.getComponentIdentifier().getLocalName()+": "+msg);
     }

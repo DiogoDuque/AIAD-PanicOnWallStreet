@@ -2,14 +2,29 @@ package assets;
 
 public class Share {
 
+    /**
+     * Company to which this share is associated.
+     */
     private final Company company;
 
+    /**
+     * Owner's cid.
+     */
     private final String ownerCid;
 
+    /**
+     * Name of the agent whose proposal value was highest.
+     */
     private String highestBidder;
 
+    /**
+     * Value of the highest proposal.
+     */
     private int highestBidderValue;
 
+    /**
+     * Stores whether this share is already bought or not.
+     */
     private boolean bought = false;
 
     public Share(Company company, String ownerCid) {
@@ -41,6 +56,18 @@ public class Share {
         bought = true;
     }
 
+    public boolean isBought() {
+        return bought;
+    }
+
+    /**
+     * Calculates the average value that will come out when the dices are rolled.
+     * @return average of the next value after dice roll.
+     */
+    public float getShareAverageValue(){
+        return company.getAverageNextValue();
+    }
+
     @Override
     public String toString() {
         return "Share{" + ownerCid + " -> " + company +
@@ -56,9 +83,5 @@ public class Share {
         Share share = (Share) o;
 
         return company.equals(share.company) && ownerCid.equals(share.ownerCid);
-    }
-
-    public boolean isBought() {
-        return bought;
     }
 }

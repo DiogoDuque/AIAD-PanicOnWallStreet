@@ -4,13 +4,14 @@ import com.google.gson.Gson;
 
 public class NegotiationMessage extends Message {
 
-    public String getJsonExtra() {
-        return jsonExtra;
-    }
-
+    /**
+     * Message types for every possible Negotiation Message sent.
+     */
     public enum NegotiationMessageType{
-        ASK_SHARES, // called by timerAgent to ask every manager for its shares
-        MANAGER_SHARES, // every manager starts by sending a message with all its available shares
+        ASK_INFO, // called by timerAgent to ask every agent do broadcast its info
+        MANAGER_SHARES, // sent by managers with all its available shares
+        INVESTOR_INFO, // sent by investors with all their available info
+
 
         NEW_PROPOSAL, // send a new proposal
         PROPOSAL_REJECTED, // proposal rejected
@@ -21,9 +22,15 @@ public class NegotiationMessage extends Message {
         CLOSE_DEAL_REJECT // reject deal, but the proposal remains
     }
 
-    private NegotiationMessageType msgType; // message type. this is also important for interpreting the jsonExtra
+    /**
+     * Message type. this is also important for interpreting the jsonExtra.
+     */
+    private NegotiationMessageType msgType;
 
-    private String jsonExtra;  // contains extra information regarding the message type
+    /**
+     * (Not always required) JSON string containing extra information, regarding the specific type of message.
+     */
+    private String jsonExtra;
 
     public NegotiationMessage(String senderCid, NegotiationMessageType type) {
         super(senderCid);
@@ -49,6 +56,10 @@ public class NegotiationMessage extends Message {
 
     public NegotiationMessageType getMsgType(){
         return msgType;
+    }
+
+    public String getJsonExtra() {
+        return jsonExtra;
     }
 
     @Override

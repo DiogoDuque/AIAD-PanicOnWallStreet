@@ -1,12 +1,10 @@
 package communication;
 
-import agent.TimerAgent;
 import jadex.bridge.IInternalAccess;
 import jadex.bridge.service.annotation.Service;
 import jadex.bridge.service.annotation.ServiceComponent;
 import jadex.commons.future.ISubscriptionIntermediateFuture;
 import jadex.commons.future.SubscriptionIntermediateFuture;
-import main.Main;
 
 import java.util.ArrayList;
 
@@ -16,8 +14,15 @@ public class ComsService implements IComsService {
     @ServiceComponent
     private IInternalAccess agent;
 
+    /**
+     * Contains every subscription made to this service.
+     */
     private ArrayList<SubscriptionIntermediateFuture<String>> subscribers = new ArrayList<>();
 
+    /**
+     * Broadcasts a message to every subscriber of this service.
+     * @param msg message to be broadcasted.
+     */
     private void broadcast(String msg) {
         for(SubscriptionIntermediateFuture<String> subscriber: subscribers){
             subscriber.addIntermediateResultIfUndone(msg);
@@ -28,13 +33,17 @@ public class ComsService implements IComsService {
     public ISubscriptionIntermediateFuture<String> subscribeComs() {
         SubscriptionIntermediateFuture<String> sub = new SubscriptionIntermediateFuture<>();
         subscribers.add(sub);
-        System.out.println(subscribers.size());
         return sub;
     }
 
     @Override
     public void sendShares(String sender, String shares) {
         broadcast(new NegotiationMessage(sender, NegotiationMessage.NegotiationMessageType.MANAGER_SHARES, shares).toJsonStr());
+    }
+
+    @Override
+    public void sendInvestorInfo(String sender, String info){
+        broadcast(new NegotiationMessage(sender, NegotiationMessage.NegotiationMessageType.INVESTOR_INFO, info).toJsonStr());
     }
 
     @Override
@@ -68,10 +77,7 @@ public class ComsService implements IComsService {
     }
 
     @Override
-    public boolean askShares(String sender){
-        if(subscribers.size() < Main.N_INVESTORS + Main.N_MANAGERS + 1)
-            return false;
-        broadcast(new NegotiationMessage(sender, NegotiationMessage.NegotiationMessageType.ASK_SHARES).toJsonStr());
-        return true;
+    public void askInfo(String sender){
+        broadcast(new NegotiationMessage(sender, NegotiationMessage.NegotiationMessageType.ASK_INFO).toJsonStr());
     }
 }

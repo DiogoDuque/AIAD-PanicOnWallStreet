@@ -5,8 +5,14 @@ import com.google.gson.Gson;
 
 public class Proposal {
 
+    /**
+     * Share to which a proposal is being made.
+     */
     private Share share;
 
+    /**
+     * Value the investor is willing to pay for this share.
+     */
     private int value;
 
     public Proposal(Share share, int value) {
@@ -22,6 +28,10 @@ public class Proposal {
         return value;
     }
 
+    /**
+     * Converts this object to a JSON string.
+     * @return JSON string of this object.
+     */
     public String toJsonStr() {
         return new Gson().toJson(this);
     }
