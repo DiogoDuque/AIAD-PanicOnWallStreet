@@ -2,6 +2,7 @@ package agent;
 
 import assets.Share;
 import com.google.gson.Gson;
+import communication.InvestorInfo;
 import communication.NegotiationMessage;
 import communication.Proposal;
 import jadex.bdiv3.annotation.Goal;
@@ -16,7 +17,6 @@ import jadex.bridge.service.search.SServiceProvider;
 import jadex.commons.future.ISubscriptionIntermediateFuture;
 import jadex.commons.future.IntermediateDefaultResultListener;
 import jadex.micro.annotation.*;
-import communication.ComsService;
 import communication.IComsService;
 import main.Main;
 
@@ -57,12 +57,11 @@ public class InvestorBDI
         this.coms = (IComsService)reqServ.getRequiredService("coms").get();
         IComsService iComs = SServiceProvider.getService(agent,IComsService.class, RequiredServiceInfo.SCOPE_PLATFORM).get();
         ISubscriptionIntermediateFuture<String> sub = iComs.subscribeComs();
-        log("subscribed");
         sub.addIntermediateResultListener(new IntermediateDefaultResultListener<String>() {
             @Override
             public void intermediateResultAvailable(String result) {
 
-                switch(TimerAgent.getGamePhase()){
+                switch(TimerBDI.getGamePhase()){
                     case NEGOTIATION:
                         NegotiationMessage nMsg = new Gson().fromJson(result, NegotiationMessage.class);
                         parseNegotiationMessage(nMsg);
@@ -96,7 +95,12 @@ public class InvestorBDI
             return;
 
         switch (msg.getMsgType()){
-            case MANAGER_SHARES:
+            case ASK_INFO:
+                InvestorInfo info = new InvestorInfo(currentMoney, boughtShares, proposedShares);
+                coms.sendInvestorInfo(myCid, info.toJsonStr());
+                break;
+
+            /*case MANAGER_SHARES:
                 Share[] sharesArr = new Gson().fromJson(msg.getJsonExtra(), Share[].class);
                 ArrayList<Share> shares = new ArrayList<Share>(Arrays.asList(sharesArr));
                 Share chosenShare = shares.get(0);
@@ -120,10 +124,10 @@ public class InvestorBDI
                 Proposal proposalR = new Gson().fromJson(msg.getJsonExtra(), Proposal.class);
                 proposedShares.remove(proposalR.getShare());
                 log("Proposal was denied");
-                break;
+                break;*/
 
             default:
-                //log(msg.toJsonStr());
+                log(msg.toJsonStr());
                 break;
         }
     }

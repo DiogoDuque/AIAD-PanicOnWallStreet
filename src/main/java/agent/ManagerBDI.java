@@ -54,11 +54,10 @@ public class ManagerBDI
         this.coms = (IComsService)reqServ.getRequiredService("coms").get();
         IComsService iComs = SServiceProvider.getService(agent,IComsService.class, RequiredServiceInfo.SCOPE_PLATFORM).get();
         ISubscriptionIntermediateFuture<String> sub = iComs.subscribeComs();
-        log("subscribed");
         sub.addIntermediateResultListener(new IntermediateDefaultResultListener<String>() {
             @Override
             public void intermediateResultAvailable(String result) {
-                switch(TimerAgent.getGamePhase()){
+                switch(TimerBDI.getGamePhase()){
                     case NEGOTIATION:
                         NegotiationMessage nMsg = new Gson().fromJson(result, NegotiationMessage.class);
                         parseNegotiationMessage(nMsg);
@@ -79,11 +78,16 @@ public class ManagerBDI
             return;
 
         switch (msg.getMsgType()){
-            case ASK_SHARES:
-                coms.sendShares(agent.getComponentIdentifier().getName(), new Gson().toJson(ownedShares.toArray(new Share[ownedShares.size()])));
+            case ASK_INFO:
+                ArrayList<Share> shares = new ArrayList<>();
+                for(Share s: ownedShares){
+                    if(!s.isBought())
+                        shares.add(s);
+                }
+                coms.sendShares(agent.getComponentIdentifier().getName(), new Gson().toJson(shares.toArray(new Share[shares.size()])));
                 break;
 
-            case NEW_PROPOSAL:
+            /*case NEW_PROPOSAL:
                 if(!msg.getReceiverCid().equals(myCid)) //if proposal is not for me
                     break;
 
@@ -138,7 +142,7 @@ public class ManagerBDI
                 shareR.setHighestBidder(null);
                 shareR.setHighestBidderValue(0);
 
-                break;
+                break;*/
         }
     }
 

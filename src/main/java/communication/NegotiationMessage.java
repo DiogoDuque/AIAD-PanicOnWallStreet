@@ -9,8 +9,10 @@ public class NegotiationMessage extends Message {
     }
 
     public enum NegotiationMessageType{
-        ASK_SHARES, // called by timerAgent to ask every manager for its shares
-        MANAGER_SHARES, // every manager starts by sending a message with all its available shares
+        ASK_INFO, // called by timerAgent to ask every agent do broadcast its info
+        MANAGER_SHARES, // sent by managers with all its available shares
+        INVESTOR_INFO, // sent by investors with all their available info
+
 
         NEW_PROPOSAL, // send a new proposal
         PROPOSAL_REJECTED, // proposal rejected
