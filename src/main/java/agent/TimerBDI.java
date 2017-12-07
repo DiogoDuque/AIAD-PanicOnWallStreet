@@ -94,6 +94,10 @@ public class TimerBDI {
         return gamePhase;
     }
 
+    /**
+     * A logging function. Used mainly for debugging and showing what's happening inside this specific agent.
+     * @param msg message to be displayed.
+     */
     private void log(String msg){
         System.out.println(agent.getComponentIdentifier().getLocalName()+": "+msg);
     }

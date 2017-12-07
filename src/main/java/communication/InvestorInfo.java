@@ -2,7 +2,6 @@ package communication;
 
 import assets.Share;
 import com.google.gson.Gson;
-import main.Main;
 
 import java.util.ArrayList;
 

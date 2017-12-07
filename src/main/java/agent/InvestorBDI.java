@@ -43,14 +43,34 @@ public class InvestorBDI
     @AgentFeature
     protected IBDIAgentFeature agentFeature;
 
+    /**
+     * Communication service.
+     */
 	private IComsService coms;
 
+    /**
+     * Current amount of money.
+     */
     private int currentMoney;
 
-    private ArrayList<Share> boughtShares, proposedShares;
+    /**
+     * Shares acquired from a manager.
+     */
+    private ArrayList<Share> boughtShares;
 
+    /**
+     * Shares whose proposals have been accepted by managers. However, they can be rejected at any time, so this is a very volatile list.
+     */
+    private ArrayList<Share> proposedShares;
+
+    /**
+     * Hashmap containing regularly updated info on the other investors. Info can be retrieved with the agent's name as key.
+     */
     private HashMap<String, InvestorInfo> investorInfos;
 
+    /**
+     * Hashmap containing regularly updated info on manager's shares. Info can be retrieved with the agent's name as key.
+     */
     private HashMap<String, ArrayList<Share>> managerInfos;
 
     @AgentCreated
@@ -98,7 +118,13 @@ public class InvestorBDI
         BuySharesGoal goal = (BuySharesGoal)agentFeature.dispatchTopLevelGoal(new BuySharesGoal()).get();
 	}
 
-	private float evaluateAgent(InvestorInfo info){
+    /**
+     * Receives information about an investor and calculates how much it is worth. Useful for finding out how much better/worse agents are among themselves.
+     * @param info contains information about the investor.
+     * @return how much the investor is worth.
+     * @see InvestorInfo
+     */
+	private float evaluateInvestor(InvestorInfo info){
         int money = info.getCurrentMoney();
 
         ArrayList<Share> boughtShares = info.getBoughtShares();
@@ -116,6 +142,10 @@ public class InvestorBDI
         return money*1.1f + boughtSharesValue + proposedSharesValue*0.4f;
     }
 
+    /**
+     * Called as a parser of messages in the Negotiation phase. Receives a message and deals with it the best way it can.
+     * @param msg negotation message to be parsed.
+     */
     private void parseNegotiationMessage(NegotiationMessage msg) {
         String myCid = agent.getComponentIdentifier().getLocalName();
         if(msg.getSenderCid().equals(myCid)) { //if msg was sent by me
@@ -167,6 +197,10 @@ public class InvestorBDI
         }
     }
 
+    /**
+     * A logging function. Used mainly for debugging and showing what's happening inside this specific agent.
+     * @param msg message to be displayed.
+     */
     private void log(String msg){
 	    System.out.println(agent.getComponentIdentifier().getLocalName()+": "+msg);
     }

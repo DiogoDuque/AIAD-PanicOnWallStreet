@@ -70,8 +70,7 @@ public class ComsService implements IComsService {
     }
 
     @Override
-    public boolean askInfo(String sender){
+    public void askInfo(String sender){
         broadcast(new NegotiationMessage(sender, NegotiationMessage.NegotiationMessageType.ASK_INFO).toJsonStr());
-        return true;
     }
 }
