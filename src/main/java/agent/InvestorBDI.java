@@ -22,6 +22,8 @@ import main.Main;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 @RequiredServices({
         @RequiredService(name="coms", type=IComsService.class, multiple=true, binding=@Binding(scope=RequiredServiceInfo.SCOPE_PLATFORM))
@@ -47,11 +49,18 @@ public class InvestorBDI
 
     private ArrayList<Share> boughtShares, proposedShares;
 
+    private HashMap<String, InvestorInfo> investorInfos;
+
+    private HashMap<String, ArrayList<Share>> managerInfos;
+
     @AgentCreated
     public void init(){
         currentMoney = Main.STARTING_MONEY;
         boughtShares = new ArrayList<>();
         proposedShares = new ArrayList<>();
+
+        investorInfos = new HashMap<>();
+        managerInfos = new HashMap<>();
 
         String myCid = agent.getComponentIdentifier().getName();
         this.coms = (IComsService)reqServ.getRequiredService("coms").get();
@@ -91,24 +100,32 @@ public class InvestorBDI
 
     private void parseNegotiationMessage(NegotiationMessage msg) {
         String myCid = agent.getComponentIdentifier().getLocalName();
-        if(msg.getSenderCid().equals(agent.getComponentIdentifier().getName())) //if msg was sent by me
+        if(msg.getSenderCid().equals(myCid)) { //if msg was sent by me
+            log("Received my message");
             return;
+        } else log("Received "+msg.getMsgType()+" from "+msg.getSenderCid());
 
         switch (msg.getMsgType()){
             case ASK_INFO:
-                InvestorInfo info = new InvestorInfo(currentMoney, boughtShares, proposedShares);
+                InvestorInfo info = new InvestorInfo(myCid, currentMoney, boughtShares, proposedShares);
                 coms.sendInvestorInfo(myCid, info.toJsonStr());
                 break;
 
-            /*case MANAGER_SHARES:
+            case MANAGER_SHARES:
                 Share[] sharesArr = new Gson().fromJson(msg.getJsonExtra(), Share[].class);
                 ArrayList<Share> shares = new ArrayList<Share>(Arrays.asList(sharesArr));
-                Share chosenShare = shares.get(0);
+                this.managerInfos.put(msg.getSenderCid(), shares);
+                /*Share chosenShare = shares.get(0);
                 log("Received "+msg.getSenderCid()+" shares. Sending a proposal for share "+chosenShare);
-                coms.sendProposal(myCid, msg.getSenderCid(), new Proposal(chosenShare, 10).toJsonStr());
+                coms.sendProposal(myCid, msg.getSenderCid(), new Proposal(chosenShare, 10).toJsonStr());*/
                 break;
 
-            case PROPOSAL_ACCEPTED:
+            case INVESTOR_INFO:
+                InvestorInfo investorInfo = new Gson().fromJson(msg.getJsonExtra(), InvestorInfo.class);
+                this.investorInfos.put(msg.getSenderCid(), investorInfo);
+                break;
+
+            /*case PROPOSAL_ACCEPTED:
                 if(!msg.getReceiverCid().equals(myCid)) //if proposal is not for me
                     break;
 

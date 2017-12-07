@@ -71,6 +71,7 @@ public class TimerBDI {
 
         switch (gamePhase){
             case NEGOTIATION:
+                log("GP");
                 if(timeAfterPhaseStart < Main.NEGOTIATION_PHASE_DURATION)
                     coms.askInfo(agent.getComponentIdentifier().getName());
                 else gamePhase = GamePhase.INVESTOR_INCOME;
