@@ -47,11 +47,16 @@ public class InvestorBDI
 
     private ArrayList<Share> boughtShares, proposedShares;
 
+
+    public static int TYPEOFINVESTOR; // 0 regular , 1 conservador, 2 risky
+
+
     @AgentCreated
     public void init(){
         currentMoney = Main.STARTING_MONEY;
         boughtShares = new ArrayList<>();
         proposedShares = new ArrayList<>();
+        TYPEOFINVESTOR = 1;
 
         String myCid = agent.getComponentIdentifier().getName();
         this.coms = (IComsService)reqServ.getRequiredService("coms").get();
@@ -81,6 +86,22 @@ public class InvestorBDI
     @Plan(trigger=@Trigger(goals=BuySharesGoal.class))
     protected void buyShare(BuySharesGoal bsg) {
         System.out.println("teste correu bem, I guess");
+
+        switch(TYPEOFINVESTOR) {
+            case 0:
+                System.out.println("buying shares smart");
+                break;
+            case 1:
+                //
+                System.out.println("buying conservative shares");
+                break;
+            case 2:
+                System.out.println("buying risky shares");
+                break;
+            default:
+                break;
+        }
+
     }
 
 	@AgentBody
