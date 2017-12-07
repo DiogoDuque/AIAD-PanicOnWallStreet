@@ -8,6 +8,8 @@ public interface IComsService {
 
     void sendShares(String sender, String shares);
 
+    void sendInvestorInfo(String sender, String info);
+
     void sendProposal(String sender, String receiver, String proposal);
 
     void rejectProposal(String sender, String receiver, String proposal);
@@ -20,5 +22,5 @@ public interface IComsService {
 
     void acceptCloseDeal(String sender, String receiver, String proposal);
 
-    boolean askShares(String sender);
+    boolean askInfo(String sender);
 }
