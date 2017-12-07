@@ -4,6 +4,7 @@ import assets.Share;
 import com.google.gson.Gson;
 import communication.NegotiationMessage;
 import communication.Proposal;
+import jadex.bdiv3.annotation.Belief;
 import jadex.bdiv3.annotation.Goal;
 import jadex.bdiv3.annotation.Plan;
 import jadex.bdiv3.annotation.Trigger;
@@ -43,6 +44,7 @@ public class InvestorBDI
 
 	private IComsService coms;
 
+	@Belief
     private int currentMoney;
 
     private ArrayList<Share> boughtShares, proposedShares;
@@ -72,22 +74,48 @@ public class InvestorBDI
         });
     }
 
-    @Goal
-    public class BuySharesGoal {
-        public BuySharesGoal() {
+    @Goal(recur=true)
+    public class BeTheRichestInvestorGoal {
+        public BeTheRichestInvestorGoal() {
 
         }
     }
 
-    @Plan(trigger=@Trigger(goals=BuySharesGoal.class))
-    protected void buyShare(BuySharesGoal bsg) {
-        System.out.println("teste correu bem, I guess");
+    @Plan(trigger=@Trigger(goals=BeTheRichestInvestorGoal.class))
+    protected void conservativePlan(BeTheRichestInvestorGoal goal) {
+        // get current money
+        // get diff between richest and me
+        // get current available shares (with current proposal - or 0 when none)
+        // order shares with algorithm
+        // choose shares to propose to cover difference
+        // send proposals
     }
 
-	@AgentBody
+    @Plan(trigger=@Trigger(goals=BeTheRichestInvestorGoal.class))
+    protected void riskyPlan(BeTheRichestInvestorGoal goal) {
+        // get current money
+        // get diff between richest and me
+        // get current available shares (with current proposal - or 0 when none)
+        // order shares with algorithm
+        // choose shares to propose to cover difference
+        // send proposals
+    }
+
+    @Plan(trigger=@Trigger(goals=BeTheRichestInvestorGoal.class))
+    protected void regularPlan(BeTheRichestInvestorGoal goal) {
+        // get current money
+        // get diff between richest and me
+        // get current available shares (with current proposal - or 0 when none)
+        // order shares with algorithm
+        // choose shares to propose to cover difference
+        // send proposals
+    }
+
+
+    @AgentBody
 	public void executeBody()
 	{
-        BuySharesGoal goal = (BuySharesGoal)agentFeature.dispatchTopLevelGoal(new BuySharesGoal()).get();
+        agentFeature.dispatchTopLevelGoal(new BeTheRichestInvestorGoal());
 	}
 
     private void parseNegotiationMessage(NegotiationMessage msg) {
