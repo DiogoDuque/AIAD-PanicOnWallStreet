@@ -1,5 +1,7 @@
 package assets;
 
+import com.google.gson.Gson;
+
 import java.util.Random;
 
 public class Company {
@@ -35,6 +37,7 @@ public class Company {
         return values[currIndex];
     }
 
+<<<<<<< HEAD
     int maxValue(){
         return values[currIndex] + this.diceValues[this.diceValues.length - 1];
     }
@@ -89,7 +92,7 @@ public class Company {
 
     @Override
     public String toString() {
-        return "{"+name+"("+(values[values.length-1]-values[0])+")}";
+        return "{"+name+"("+values[currIndex]+")}";
     }
 
     @Override
@@ -100,5 +103,9 @@ public class Company {
         Company company = (Company) o;
 
         return name.equals(company.name);
+    }
+
+    public String toJsonStr(){
+        return new Gson().toJson(this);
     }
 }

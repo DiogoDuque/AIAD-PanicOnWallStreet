@@ -34,7 +34,7 @@ public class TimerBDI {
         INVESTOR_INCOME,
         MANAGER_INCOME,
         MANAGEMENT_COST_PAYMENT,
-        COMPANY_AUCTION
+        AUCTION
     }
 
     @Agent
@@ -126,22 +126,24 @@ public class TimerBDI {
                         phaseStartTime = -1;
                         timeAfterPhaseStart = -1;
                         changePhase = true;
-                        log("Started Investor Income Phase");
                     }
                     break;
 
                 case INVESTOR_INCOME:
                     if (timeAfterPhaseStart < Main.INVESTOR_INCOME_PHASE_DURATION) {
                         if(phaseStartTime == -1){ //executed only once
+                            log("Started Investor Income Phase");
+
                             //roll dices
                             log(Main.getCompanies()+"");
                             for(Company c: Main.getCompanies()){
                                 c.rollDice();
                             }
+                            log(Main.getCompanies()+"");
 
                             // now send requests
                             phaseStartTime = currentTime;
-                            coms.askInvestorForIncomeCalculationInfo(myCid);
+                            coms.askInvestorForIncomeCalculationInfo(myCid, new Gson().toJson(Main.getCompanies().toArray(new Company[Main.getCompanies().size()])));
                         }
                     } else {
                         gamePhase = GamePhase.MANAGER_INCOME;
@@ -152,12 +154,42 @@ public class TimerBDI {
                     break;
 
                 case MANAGER_INCOME:
+                    if (timeAfterPhaseStart < Main.MANAGER_INCOME_PHASE_DURATION) {
+                        if(phaseStartTime == -1){ //executed only once
+                            log("Started Manager Income Phase");
+
+                            // now send requests
+                            phaseStartTime = currentTime;
+                            coms.askManagerForManagerIncomeCalculation(myCid, new Gson().toJson(Main.getCompanies().toArray(new Company[Main.getCompanies().size()])));
+                        }
+                    } else {
+                        gamePhase = GamePhase.MANAGEMENT_COST_PAYMENT;
+                        phaseStartTime = -1;
+                        timeAfterPhaseStart = -1;
+                        changePhase = true;
+                    }
                     break;
 
                 case MANAGEMENT_COST_PAYMENT:
+                    if (timeAfterPhaseStart < Main.MANAGEMENT_COSTS_PHASE_DURATION) {
+                        if(phaseStartTime == -1){ //executed only once
+                            log("Started Manager Costs Phase");
+
+                            // now send requests
+                            phaseStartTime = currentTime;
+                            coms.askManagerForManagerIncomeCalculation(myCid, new Gson().toJson(Main.getCompanies().toArray(new Company[Main.getCompanies().size()])));
+                        }
+                    } else {
+                        gamePhase = GamePhase.AUCTION;
+                        phaseStartTime = -1;
+                        timeAfterPhaseStart = -1;
+                        changePhase = true;
+                        log("Started Auction Phase");
+                    }
                     break;
 
-                case COMPANY_AUCTION:
+                case AUCTION:
+                    // todo start auction. the auction does not have a timeout. instead, it will have a state machine, which will also determine when to pass to the next phase
                     break;
             }
         } while(changePhase); // will loop if change phase
