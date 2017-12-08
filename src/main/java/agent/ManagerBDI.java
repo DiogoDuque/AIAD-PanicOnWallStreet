@@ -71,6 +71,16 @@ public class ManagerBDI
                         NegotiationMessage nMsg = new Gson().fromJson(result, NegotiationMessage.class);
                         parseNegotiationMessage(nMsg);
                         break;
+
+                    case INVESTOR_INCOME:
+                        // TODO to be moved to next case
+                        for(Share s: ownedShares){
+                            if(!s.isBought()){
+                                s.setHighestBidderValue(-1);
+                                s.setHighestBidder(null);
+                            }
+                        }
+                        break;
                 }
             }
         });

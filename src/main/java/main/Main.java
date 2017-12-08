@@ -20,10 +20,13 @@ public class Main {
 
     public static final int N_INVESTORS = 1; // number of investors in the game
     public static final int N_MANAGERS = 1; // number of managers in the game
-
     public static final int N_ROUNDS = 3; // number of rounds the game will have
-    public static final int INFO_REFRESH_RATE = 500; // in milis // 500 milis = 0.5s
-    public static final int NEGOTIATION_PHASE_DURATION = 10000; // in milis
+
+    public static final int INFO_REFRESH_RATE = 500; // in milis // 0.5s
+    public static final int NEGOTIATION_PHASE_DURATION = 10000; // in milis // 10s
+    public static final int INVESTOR_INCOME_PHASE_DURATION = 2000; // in milis // 2s
+    public static final int MANAGER_INCOME_PHASE_DURATION = 2000; // in milis // 2s
+    public static final int MANAGEMENT_COSTS_PHASE_DURATION = 2000; // in milis // 2s
 
     private static ArrayList<Company> companies;
 

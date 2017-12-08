@@ -85,4 +85,25 @@ public interface IComsService {
      * @see Proposal
      */
     void rejectCloseDeal(String sender, String receiver, String proposal);
+
+    /**
+     * Used by timer. It is sent at the beginning of the Investor Income Phase, asking for every Investor to send their bought shares so as to calculate its income.
+     * @param sender sender's cid.
+     */
+    void askInvestorForIncomeCalculationInfo(String sender);
+
+    /**
+     * Used by investors. Contains every shares bought by an investor.
+     * @param sender sender's cid.
+     * @param shares sender's shares.
+     */
+    void sendInfoForInvestorIncomeCalculation(String sender, String shares);
+
+    /**
+     * Used by timer. Contains the income for a specific investor.
+     * @param sender sender's cid.
+     * @param receiver receiver's cid.
+     * @param money amount of money resulting from the income.
+     */
+    void sendInvestorIncomeCalculationResult(String sender, String receiver, String money);
 }

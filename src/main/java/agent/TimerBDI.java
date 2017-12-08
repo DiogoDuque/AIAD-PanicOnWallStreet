@@ -1,6 +1,10 @@
 package agent;
 
+import assets.Company;
+import assets.Share;
+import com.google.gson.Gson;
 import communication.IComsService;
+import communication.IncomeMessage;
 import jadex.bdiv3.annotation.Belief;
 import jadex.bdiv3.annotation.Plan;
 import jadex.bdiv3.annotation.Trigger;
@@ -12,6 +16,9 @@ import jadex.commons.future.ISubscriptionIntermediateFuture;
 import jadex.commons.future.IntermediateDefaultResultListener;
 import jadex.micro.annotation.*;
 import main.Main;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 @RequiredServices({
         @RequiredService(name="coms", type=IComsService.class, multiple=true, binding=@Binding(scope=RequiredServiceInfo.SCOPE_PLATFORM))
@@ -66,6 +73,24 @@ public class TimerBDI {
         sub.addIntermediateResultListener(new IntermediateDefaultResultListener<String>() {
             @Override
             public void intermediateResultAvailable(String result) {
+                switch (gamePhase){
+                    case INVESTOR_INCOME:
+                        IncomeMessage invIncMsg = new Gson().fromJson(result, IncomeMessage.class); //parse message
+
+                        // if message was sent from me or if it's not INVESTOR_INFO, ignore
+                        if(invIncMsg.getSenderCid().equals(myCid) || !invIncMsg.getMsgType().equals(IncomeMessage.MessageType.INVESTOR_INFO))
+                            break;
+
+                        // calculate income and send it to the investor
+                        Share[] invSharesArr = new Gson().fromJson(invIncMsg.getJsonExtra(), Share[].class);
+                        ArrayList<Share> invShares = new ArrayList<>(Arrays.asList(invSharesArr));
+                        int invIncome = 0;
+                        for(Share s: invShares){
+                            invIncome += s.getCurrentValue();
+                        }
+                        coms.sendInvestorIncomeCalculationResult(myCid, invIncMsg.getSenderCid(), new Gson().toJson(new Integer(invIncome)));
+                        break;
+                }
             }
         });
     }
@@ -86,26 +111,56 @@ public class TimerBDI {
             phaseStartTime =currentTime;
 
         long timeAfterPhaseStart = currentTime- phaseStartTime;
+        String myCid = agent.getComponentIdentifier().getName();
 
-        switch (gamePhase){
-            case NEGOTIATION:
-                if(timeAfterPhaseStart < Main.NEGOTIATION_PHASE_DURATION)
-                    coms.askInfo(agent.getComponentIdentifier().getName());
-                else gamePhase = GamePhase.INVESTOR_INCOME;
-                break;
+        boolean changePhase = false;
+        do {
+            if(changePhase)
+            changePhase = false;
+            switch (gamePhase) {
+                case NEGOTIATION:
+                    if (timeAfterPhaseStart < Main.NEGOTIATION_PHASE_DURATION)
+                        coms.askInfo(myCid);
+                    else { //change phase
+                        gamePhase = GamePhase.INVESTOR_INCOME;
+                        phaseStartTime = -1;
+                        timeAfterPhaseStart = -1;
+                        changePhase = true;
+                        log("Started Investor Income Phase");
+                    }
+                    break;
 
-            case INVESTOR_INCOME:
-                break;
+                case INVESTOR_INCOME:
+                    if (timeAfterPhaseStart < Main.INVESTOR_INCOME_PHASE_DURATION) {
+                        if(phaseStartTime == -1){ //executed only once
+                            //roll dices
+                            log(Main.getCompanies()+"");
+                            for(Company c: Main.getCompanies()){
+                                c.rollDice();
+                            }
 
-            case MANAGER_INCOME:
-                break;
+                            // now send requests
+                            phaseStartTime = currentTime;
+                            coms.askInvestorForIncomeCalculationInfo(myCid);
+                        }
+                    } else {
+                        gamePhase = GamePhase.MANAGER_INCOME;
+                        phaseStartTime = -1;
+                        timeAfterPhaseStart = -1;
+                        changePhase = true;
+                    }
+                    break;
 
-            case MANAGEMENT_COST_PAYMENT:
-                break;
+                case MANAGER_INCOME:
+                    break;
 
-            case COMPANY_AUCTION:
-                break;
-        }
+                case MANAGEMENT_COST_PAYMENT:
+                    break;
+
+                case COMPANY_AUCTION:
+                    break;
+            }
+        } while(changePhase); // will loop if change phase
     }
 
     static GamePhase getGamePhase(){
