@@ -79,6 +79,14 @@ public class ManagerBDI
                         IncomeMessage miMsg = new Gson().fromJson(result, IncomeMessage.class);
                         parseManagerIncomeMessage(miMsg);
                         break;
+
+                    case MANAGEMENT_COST_PAYMENT:
+                        int costs = ownedShares.size()*Main.MANAGEMENT_COST_PER_SHARE;
+                        currentMoney -= costs;
+                        break;
+
+                    case AUCTION:
+                        break;
                 }
             }
         });

@@ -110,4 +110,9 @@ public class ComsService implements IComsService {
     public void sendManagerIncome(String sender, String receiver, String money) {
         broadcast(new IncomeMessage(sender, receiver, IncomeMessage.MessageType.MANAGER_INCOME_RESULT, money).toJsonStr());
     }
+
+    @Override
+    public void payManagementCosts(String sender){
+        broadcast(new IncomeMessage(sender, IncomeMessage.MessageType.ASK_MANAGEMENT_COSTS_PAYMENT).toJsonStr());
+    }
 }

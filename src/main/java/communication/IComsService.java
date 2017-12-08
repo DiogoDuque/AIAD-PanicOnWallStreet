@@ -4,6 +4,8 @@ import jadex.commons.future.ISubscriptionIntermediateFuture;
 
 public interface IComsService {
 
+    // NEGOTIATION PHASE
+
     /**
      * Gets a subscription to this communications channel.
      * @return subscription. A listener can be added to it.
@@ -86,6 +88,8 @@ public interface IComsService {
      */
     void rejectCloseDeal(String sender, String receiver, String proposal);
 
+    // INVESTOR INCOME PHASE
+
     /**
      * Used by timer. It is sent at the beginning of the Investor Income Phase, asking for every Investor to send their bought shares so as to calculate its income.
      * @param sender sender's cid.
@@ -107,6 +111,8 @@ public interface IComsService {
      * @param money amount of money resulting from the income.
      */
     void sendInvestorIncomeCalculationResult(String sender, String receiver, String money);
+
+    // MANAGER INCOME PHASE
 
     /**
      * Used by timer. It is sent at the beginning of the Manager Income Phase, asking for every Manager to talk with the Investors to receive their income.
@@ -130,4 +136,11 @@ public interface IComsService {
      * @param money amount of money resulting from the income.
      */
     void sendManagerIncome(String sender, String receiver, String money);
+
+    // MANAGEMENT COSTS PHASE
+
+    /**
+     * Sent by timer to managers, indicating they should pay the costs of owning shares.
+     */
+    void payManagementCosts(String sender);
 }

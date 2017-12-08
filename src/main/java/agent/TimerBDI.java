@@ -34,7 +34,7 @@ public class TimerBDI {
         INVESTOR_INCOME,
         MANAGER_INCOME,
         MANAGEMENT_COST_PAYMENT,
-        COMPANY_AUCTION
+        AUCTION
     }
 
     @Agent
@@ -171,9 +171,25 @@ public class TimerBDI {
                     break;
 
                 case MANAGEMENT_COST_PAYMENT:
+                    if (timeAfterPhaseStart < Main.MANAGEMENT_COSTS_PHASE_DURATION) {
+                        if(phaseStartTime == -1){ //executed only once
+                            log("Started Manager Costs Phase");
+
+                            // now send requests
+                            phaseStartTime = currentTime;
+                            coms.askManagerForManagerIncomeCalculation(myCid, new Gson().toJson(Main.getCompanies().toArray(new Company[Main.getCompanies().size()])));
+                        }
+                    } else {
+                        gamePhase = GamePhase.AUCTION;
+                        phaseStartTime = -1;
+                        timeAfterPhaseStart = -1;
+                        changePhase = true;
+                        log("Started Auction Phase");
+                    }
                     break;
 
-                case COMPANY_AUCTION:
+                case AUCTION:
+                    // todo start auction. the auction does not have a timeout. instead, it will have a state machine, which will also determine when to pass to the next phase
                     break;
             }
         } while(changePhase); // will loop if change phase
