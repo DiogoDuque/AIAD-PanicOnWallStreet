@@ -2,10 +2,8 @@ package agent;
 
 import assets.Share;
 import com.google.gson.Gson;
-import communication.InvestorInfo;
-import communication.NegotiationMessage;
-import communication.Proposal;
 import jadex.bdiv3.annotation.*;
+import communication.*;
 import jadex.bdiv3.features.IBDIAgentFeature;
 import jadex.bdiv3.runtime.IPlan;
 import jadex.bridge.IInternalAccess;
@@ -16,10 +14,12 @@ import jadex.bridge.service.search.SServiceProvider;
 import jadex.commons.future.ISubscriptionIntermediateFuture;
 import jadex.commons.future.IntermediateDefaultResultListener;
 import jadex.micro.annotation.*;
-import communication.IComsService;
 import main.Main;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 
 @RequiredServices({
         @RequiredService(name="coms", type=IComsService.class, multiple=true, binding=@Binding(scope=RequiredServiceInfo.SCOPE_PLATFORM))
@@ -92,11 +92,16 @@ public class InvestorBDI
         sub.addIntermediateResultListener(new IntermediateDefaultResultListener<String>() {
             @Override
             public void intermediateResultAvailable(String result) {
-
+                log(result);
                 switch(TimerBDI.getGamePhase()){
                     case NEGOTIATION:
                         NegotiationMessage nMsg = new Gson().fromJson(result, NegotiationMessage.class);
                         parseNegotiationMessage(nMsg);
+                        break;
+
+                    case INVESTOR_INCOME:
+                        IncomeMessage iiMsg = new Gson().fromJson(result, IncomeMessage.class);
+                        parseInvestorIncomeMessage(iiMsg);
                         break;
                 }
             }
@@ -266,6 +271,40 @@ public class InvestorBDI
 
             default:
                 log(msg.toJsonStr());
+                break;
+        }
+    }
+
+    /**
+     * Called as a parser of messages in the Investor Income phase. Receives a message and deals with it the best way it can.
+     * @param msg negotation message to be parsed.
+     */
+    private void parseInvestorIncomeMessage(IncomeMessage msg) {
+        String myCid = agent.getComponentIdentifier().getLocalName();
+        if(msg.getSenderCid().equals(myCid)) { //if msg was sent by me
+            //log("Received my message");
+            return;
+        }// else log("Received "+msg.getMsgType()+" from "+msg.getSenderCid());
+
+        switch (msg.getMsgType()){
+            case ASK_INVESTOR_INFO:
+                proposedShares.clear();
+                investorInfos.clear();
+                managerInfos.clear();
+
+                coms.sendInfoForInvestorIncomeCalculation(myCid,new Gson().toJson(boughtShares.toArray(new Share[boughtShares.size()])));
+                break;
+
+            case INVESTOR_RESULT:
+                if(!msg.getReceiverCid().equals(myCid))
+                    break;
+                Integer income = new Gson().fromJson(msg.getJsonExtra(),Integer.class);
+                currentMoney += income;
+                log("I now have "+currentMoney);
+                break;
+
+            default:
+                //log(msg.toJsonStr());
                 break;
         }
     }
