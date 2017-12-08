@@ -73,20 +73,50 @@ public class ManagerBDI
                         break;
 
                     case INVESTOR_INCOME:
-                        // TODO to be moved to next case
-                        for(Share s: ownedShares){
-                            if(!s.isBought()){
-                                s.setHighestBidderValue(-1);
-                                s.setHighestBidder(null);
-                            }
-                        }
+                        break;
+
+                    case MANAGER_INCOME:
+                        IncomeMessage miMsg = new Gson().fromJson(result, IncomeMessage.class);
+                        parseManagerIncomeMessage(miMsg);
                         break;
                 }
             }
         });
     }
 
-	@AgentBody
+    private void parseManagerIncomeMessage(IncomeMessage msg) {
+        String myCid = agent.getComponentIdentifier().getLocalName();
+
+        switch (msg.getMsgType()){
+            case ASK_MANAGER_INFO:
+                Company[] companies = new Gson().fromJson(msg.getJsonExtra(), Company[].class);
+                for(Share s: ownedShares){
+                    // updates companies in shares
+                    for(Company c: companies){
+                        if(s.getCompanyName().equals(c.getName())) {
+                            s.updateCompany(c);
+                            break;
+                        }
+                    }
+
+                    if(!s.isBought()){ //delete proposals if not bought. else, ask for money
+                        s.setHighestBidderValue(-1);
+                        s.setHighestBidder(null);
+
+                    } else coms.askInvestorForManagerIncome(myCid, s.getHighestBidder(), s.toJsonStr());
+                }
+                break;
+
+            case MANAGER_INCOME_RESULT:
+                if(!msg.getReceiverCid().equals(myCid)) //if msg not for me, ignore
+                    break;
+
+                Integer income = new Gson().fromJson(msg.getJsonExtra(), Integer.class);
+                currentMoney += income;
+        }
+    }
+
+    @AgentBody
 	public void executeBody()
 	{
 	}

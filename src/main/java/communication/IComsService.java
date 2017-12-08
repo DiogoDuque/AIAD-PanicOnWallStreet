@@ -89,6 +89,7 @@ public interface IComsService {
     /**
      * Used by timer. It is sent at the beginning of the Investor Income Phase, asking for every Investor to send their bought shares so as to calculate its income.
      * @param sender sender's cid.
+     * @param companies updated companies.
      */
     void askInvestorForIncomeCalculationInfo(String sender, String companies);
 
@@ -106,4 +107,27 @@ public interface IComsService {
      * @param money amount of money resulting from the income.
      */
     void sendInvestorIncomeCalculationResult(String sender, String receiver, String money);
+
+    /**
+     * Used by timer. It is sent at the beginning of the Manager Income Phase, asking for every Manager to talk with the Investors to receive their income.
+     * @param sender sender's cid.
+     * @param companies updated companies.
+     */
+    void askManagerForManagerIncomeCalculation(String sender, String companies);
+
+    /**
+     * Used by managers. Requests money from investors.
+     * @param sender sender's cid.
+     * @param receiver receiver's cid.
+     * @param share sender's share.
+     */
+    void askInvestorForManagerIncome(String sender, String receiver, String share);
+
+    /**
+     * Used by investors. Contains the income for a manager, regarding a specific share.
+     * @param sender sender's cid.
+     * @param receiver receiver's cid.
+     * @param money amount of money resulting from the income.
+     */
+    void sendManagerIncome(String sender, String receiver, String money);
 }

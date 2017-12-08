@@ -126,13 +126,14 @@ public class TimerBDI {
                         phaseStartTime = -1;
                         timeAfterPhaseStart = -1;
                         changePhase = true;
-                        log("Started Investor Income Phase");
                     }
                     break;
 
                 case INVESTOR_INCOME:
                     if (timeAfterPhaseStart < Main.INVESTOR_INCOME_PHASE_DURATION) {
                         if(phaseStartTime == -1){ //executed only once
+                            log("Started Investor Income Phase");
+
                             //roll dices
                             log(Main.getCompanies()+"");
                             for(Company c: Main.getCompanies()){
@@ -155,13 +156,14 @@ public class TimerBDI {
                 case MANAGER_INCOME:
                     if (timeAfterPhaseStart < Main.MANAGER_INCOME_PHASE_DURATION) {
                         if(phaseStartTime == -1){ //executed only once
+                            log("Started Manager Income Phase");
 
                             // now send requests
                             phaseStartTime = currentTime;
-                            //coms.askManagerForIncomeCalculationInfo(myCid);
+                            coms.askManagerForManagerIncomeCalculation(myCid, new Gson().toJson(Main.getCompanies()));
                         }
                     } else {
-                        gamePhase = GamePhase.MANAGER_INCOME;
+                        gamePhase = GamePhase.MANAGEMENT_COST_PAYMENT;
                         phaseStartTime = -1;
                         timeAfterPhaseStart = -1;
                         changePhase = true;

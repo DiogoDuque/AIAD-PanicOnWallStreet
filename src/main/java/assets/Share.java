@@ -1,5 +1,7 @@
 package assets;
 
+import com.google.gson.Gson;
+
 public class Share {
 
     /**
@@ -91,5 +93,9 @@ public class Share {
 
     public void updateCompany(Company c) {
         this.company = c;
+    }
+
+    public String toJsonStr() {
+        return new Gson().toJson(this);
     }
 }

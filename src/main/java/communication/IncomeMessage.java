@@ -13,8 +13,8 @@ public class IncomeMessage extends Message {
         INVESTOR_RESULT,
 
         ASK_MANAGER_INFO,
-        MANAGER_INFO,
-        MANAGER_RESULT
+        ASK_INVESTOR_FOR_MANAGER_INCOME,
+        MANAGER_INCOME_RESULT
     }
 
     /**
