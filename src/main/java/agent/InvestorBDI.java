@@ -2,11 +2,10 @@ package agent;
 
 import assets.Share;
 import com.google.gson.Gson;
+import jadex.bdiv3.annotation.*;
 import communication.*;
-import jadex.bdiv3.annotation.Goal;
-import jadex.bdiv3.annotation.Plan;
-import jadex.bdiv3.annotation.Trigger;
 import jadex.bdiv3.features.IBDIAgentFeature;
+import jadex.bdiv3.runtime.IPlan;
 import jadex.bridge.IInternalAccess;
 import jadex.bridge.component.IExecutionFeature;
 import jadex.bridge.service.RequiredServiceInfo;
@@ -19,6 +18,7 @@ import main.Main;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 
 @RequiredServices({
@@ -43,6 +43,11 @@ public class InvestorBDI
      * Communication service.
      */
 	private IComsService coms;
+
+    /**
+     * Agent name.
+     */
+    private String name;
 
     /**
      * Current amount of money.
@@ -71,6 +76,8 @@ public class InvestorBDI
 
     @AgentCreated
     public void init(){
+        name = agent.getComponentIdentifier().getLocalName();
+
         currentMoney = Main.STARTING_MONEY;
         boughtShares = new ArrayList<>();
         proposedShares = new ArrayList<>();
@@ -102,46 +109,116 @@ public class InvestorBDI
     }
 
     @Goal
-    public class BuySharesGoal {
-        public BuySharesGoal() {
+    public class BeTheRichestInvestorGoal {
+        @GoalResult
+        protected ArrayList<InvestorInfo> currentInvestorsInfo;
 
+        @GoalResult
+        protected int differenceToRichest;
+
+        private boolean amITheRichest() {
+            if (this.currentInvestorsInfo.size() < 1) {
+                return false;
+            }
+
+            String richestInvestorName = this.currentInvestorsInfo.get(this.currentInvestorsInfo.size() - 1).getInvestorName();
+
+            return richestInvestorName.equals(InvestorBDI.this.name);
+        }
+
+        private boolean amIThePoorest() {
+            if (this.currentInvestorsInfo.size() < 1) {
+                return false;
+            }
+            String poorestInvestorName = this.currentInvestorsInfo.get(0).getInvestorName();
+
+            return poorestInvestorName.equals(InvestorBDI.this.name);
+        }
+
+        protected void setDifferenceToRichest() {
+            if (amITheRichest() || this.currentInvestorsInfo.size() <= 1) {
+                this.differenceToRichest = 0;
+            } else {
+                int richestInvestorMoney = this.currentInvestorsInfo.get(this.currentInvestorsInfo.size() - 1).getCurrentMoney();
+
+                for (InvestorInfo info : this.currentInvestorsInfo) {
+                    if (info.getInvestorName().equals(InvestorBDI.this.name)) {
+                        this.differenceToRichest = richestInvestorMoney - info.getCurrentMoney();
+                    }
+                }
+            }
+        }
+
+        public BeTheRichestInvestorGoal() {
+            this.currentInvestorsInfo = new ArrayList<InvestorInfo>(InvestorBDI.this.investorInfos.values());
+
+            // Sorts based on evaluation, see InvestorInfo.compareTo() method
+            Collections.sort(this.currentInvestorsInfo);
+
+            this.setDifferenceToRichest();
+
+            log("Picking a plan...");
+            if (amITheRichest()) {
+                InvestorBDI.this.agentFeature.adoptPlan(new ConservativePlan(this));
+            } else if (amIThePoorest()) {
+                InvestorBDI.this.agentFeature.adoptPlan(new RiskyPlan(this));
+            } else {
+                InvestorBDI.this.agentFeature.adoptPlan(new RegularPlan(this));
+            }
         }
     }
 
-    @Plan(trigger=@Trigger(goals=BuySharesGoal.class))
-    protected void buyShare(BuySharesGoal bsg) {
-        System.out.println("teste correu bem, I guess");
+    public abstract class InvestPlan {
+        protected BeTheRichestInvestorGoal goal;
+
+        public InvestPlan(BeTheRichestInvestorGoal goal) {
+            this.goal = goal;
+        }
+
+        public void invest(final IPlan plan) {}
     }
 
-	@AgentBody
+    @Plan
+    public class ConservativePlan extends InvestPlan {
+        public ConservativePlan(BeTheRichestInvestorGoal goal) {
+            super(goal);
+        }
+
+        @PlanBody
+        public void	invest(final IPlan plan) {
+            log("Adopted conservative plan.");
+        }
+    }
+
+    @Plan
+    public class RegularPlan extends InvestPlan {
+        public RegularPlan(BeTheRichestInvestorGoal goal) {
+            super(goal);
+        }
+
+        @PlanBody
+        public void	invest(final IPlan plan) {
+            log("Adopted regular plan.");
+        }
+    }
+
+    @Plan
+    public class RiskyPlan extends InvestPlan {
+        public RiskyPlan(BeTheRichestInvestorGoal goal) {
+            super(goal);
+        }
+
+        @PlanBody
+        public void	invest(final IPlan plan) {
+            log("Adopted risky plan.");
+        }
+    }
+
+    @AgentBody
 	public void executeBody()
 	{
-        BuySharesGoal goal = (BuySharesGoal)agentFeature.dispatchTopLevelGoal(new BuySharesGoal()).get();
+        agentFeature.dispatchTopLevelGoal(new BeTheRichestInvestorGoal());
 	}
-
-    /**
-     * Receives information about an investor and calculates how much it is worth. Useful for finding out how much better/worse agents are among themselves.
-     * @param info contains information about the investor.
-     * @return how much the investor is worth.
-     * @see InvestorInfo
-     */
-	private float evaluateInvestor(InvestorInfo info){
-        int money = info.getCurrentMoney();
-
-        ArrayList<Share> boughtShares = info.getBoughtShares();
-        float boughtSharesValue = 0;
-        for(Share s: boughtShares){
-            boughtSharesValue += s.getShareAverageValue();
-        }
-
-        ArrayList<Share> proposedShares = info.getProposedShares();
-        float proposedSharesValue = 0;
-        for(Share s: proposedShares){
-            proposedSharesValue += s.getShareAverageValue();
-        }
-
-        return money*1.1f + boughtSharesValue + proposedSharesValue*0.4f;
-    }
 
     /**
      * Called as a parser of messages in the Negotiation phase. Receives a message and deals with it the best way it can.
@@ -156,7 +233,7 @@ public class InvestorBDI
 
         switch (msg.getMsgType()){
             case ASK_INFO:
-                InvestorInfo info = new InvestorInfo(currentMoney, boughtShares, proposedShares);
+                InvestorInfo info = new InvestorInfo(msg.getSenderCid(), currentMoney, boughtShares, proposedShares);
                 coms.sendInvestorInfo(myCid, info.toJsonStr());
                 break;
 
