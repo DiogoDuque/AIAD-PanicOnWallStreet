@@ -16,11 +16,15 @@ import jadex.commons.future.IntermediateDefaultResultListener;
 import jadex.micro.annotation.*;
 import main.Main;
 
+<<<<<<< HEAD
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+=======
+import java.util.*;
+>>>>>>> selectshare
 
 @RequiredServices({
         @RequiredService(name="coms", type=IComsService.class, multiple=true, binding=@Binding(scope=RequiredServiceInfo.SCOPE_PLATFORM))
@@ -176,7 +180,24 @@ public class InvestorBDI
             this.goal = goal;
         }
 
-        public abstract void invest(final IPlan plan);
+        public void invest(final IPlan plan) {}
+
+        public void OrderSharesAverage() {
+            //so far this is simply ordering through average share value
+            ArrayList<Share> allShares = new ArrayList<>();
+            for(Map.Entry<String, ArrayList<Share>> entry: managerInfos.entrySet()){
+                allShares.addAll(entry.getValue());
+            }
+
+            Collections.sort(allShares, new Comparator<Share>() {
+                @Override
+                public int compare(Share o1, Share o2) {
+
+                    float compareValue = o1.getShareAverageValue();
+                    return Float.compare(compareValue,o2.getShareAverageValue());
+                }
+            });
+        }
         protected abstract ArrayList<Share> pickShares();
     }
 
@@ -206,6 +227,9 @@ public class InvestorBDI
         @PlanBody
         public void invest(final IPlan plan) {
             log("Adopted regular plan.");
+            OrderSharesAverage();
+            goal.setDifferenceToRichest();
+
         }
 
         protected ArrayList<Share> pickShares() {

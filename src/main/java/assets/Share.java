@@ -68,6 +68,14 @@ public class Share {
         return company.getAverageNextValue();
     }
 
+    public int getMaxPossibleValue(){
+        return company.maxValue();
+    }
+
+    public int getMinPossibleValue(){
+        return company.minValue();
+    }
+
     @Override
     public String toString() {
         return "Share{" + ownerCid + " -> " + company +

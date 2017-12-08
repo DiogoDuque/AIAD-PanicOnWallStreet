@@ -106,4 +106,6 @@ public interface IComsService {
      * @param money amount of money resulting from the income.
      */
     void sendInvestorIncomeCalculationResult(String sender, String receiver, String money);
+
+
 }
