@@ -116,15 +116,18 @@ public class InvestorBDI
                 return false;
             }
 
-            return this.currentInvestorsInfo.get(this.currentInvestorsInfo.size() - 1).getInvestorName().equals(InvestorBDI.this.name);
+            String richestInvestorName = this.currentInvestorsInfo.get(this.currentInvestorsInfo.size() - 1).getInvestorName();
+
+            return richestInvestorName.equals(InvestorBDI.this.name);
         }
 
         private boolean amIThePoorest() {
             if (this.currentInvestorsInfo.size() < 1) {
                 return false;
             }
+            String poorestInvestorName = this.currentInvestorsInfo.get(0).getInvestorName();
 
-            return this.currentInvestorsInfo.get(0).getInvestorName().equals(InvestorBDI.this.name);
+            return poorestInvestorName.equals(InvestorBDI.this.name);
         }
 
         protected void setDifferenceToRichest() {
@@ -143,7 +146,10 @@ public class InvestorBDI
 
         public BeTheRichestInvestorGoal() {
             this.currentInvestorsInfo = new ArrayList<InvestorInfo>(InvestorBDI.this.investorInfos.values());
+
+            // Sorts based on evaluation, see InvestorInfo.compareTo() method
             Collections.sort(this.currentInvestorsInfo);
+
             this.setDifferenceToRichest();
 
             log("Picking a plan...");
@@ -189,10 +195,6 @@ public class InvestorBDI
         public void	invest(final IPlan plan) {
             log("Adopted regular plan.");
         }
-        // get current available shares (with current proposal - or 0 when none)
-        // order shares with algorithm
-        // choose shares to propose to cover difference
-        // send proposals
     }
 
     @Plan
@@ -205,10 +207,6 @@ public class InvestorBDI
         public void	invest(final IPlan plan) {
             log("Adopted risky plan.");
         }
-        // get current available shares (with current proposal - or 0 when none)
-        // order shares with algorithm
-        // choose shares to propose to cover difference
-        // send proposals
     }
 
     @AgentBody
@@ -216,30 +214,6 @@ public class InvestorBDI
 	{
         agentFeature.dispatchTopLevelGoal(new BeTheRichestInvestorGoal());
 	}
-
-    /**
-     * Receives information about an investor and calculates how much it is worth. Useful for finding out how much better/worse agents are among themselves.
-     * @param info contains information about the investor.
-     * @return how much the investor is worth.
-     * @see InvestorInfo
-     */
-	private float evaluateInvestor(InvestorInfo info){
-        int money = info.getCurrentMoney();
-
-        ArrayList<Share> boughtShares = info.getBoughtShares();
-        float boughtSharesValue = 0;
-        for(Share s: boughtShares){
-            boughtSharesValue += s.getShareAverageValue();
-        }
-
-        ArrayList<Share> proposedShares = info.getProposedShares();
-        float proposedSharesValue = 0;
-        for(Share s: proposedShares){
-            proposedSharesValue += s.getShareAverageValue();
-        }
-
-        return money*1.1f + boughtSharesValue + proposedSharesValue*0.4f;
-    }
 
     /**
      * Called as a parser of messages in the Negotiation phase. Receives a message and deals with it the best way it can.

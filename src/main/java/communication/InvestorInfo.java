@@ -53,9 +53,34 @@ public class InvestorInfo implements Comparable {
         return new Gson().toJson(this);
     }
 
-    public int compareTo(Object obj2) {
-        int p1 = this.currentMoney;
-        int p2 = ((InvestorInfo) obj2).currentMoney;
+    /**
+     * Calculates how much the investor is worth. Useful for finding out how much better/worse agents are among themselves.
+     * @return how much the investor is worth.
+     */
+    public float evaluate(){
+        int money = this.currentMoney;
+
+        float boughtSharesValue = 0;
+        for(Share s: boughtShares){
+            boughtSharesValue += s.getShareAverageValue();
+        }
+
+        float proposedSharesValue = 0;
+        for(Share s: proposedShares){
+            proposedSharesValue += s.getShareAverageValue();
+        }
+
+        return money*1.1f + boughtSharesValue + proposedSharesValue*0.4f;
+    }
+
+    /**
+     * Compares two agents based on how much they are worth.
+     * @param comparable the investor to compare to.
+     * @return 1 if this agent is the richest, -1 if it's the poorest and 0 otherwise.
+     */
+    public int compareTo(Object comparable) {
+        float p1 = this.evaluate();
+        float p2 = ((InvestorInfo) comparable).evaluate();
 
         if (p1 > p2) {
             return 1;
