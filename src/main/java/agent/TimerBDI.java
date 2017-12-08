@@ -160,7 +160,7 @@ public class TimerBDI {
 
                             // now send requests
                             phaseStartTime = currentTime;
-                            coms.askManagerForManagerIncomeCalculation(myCid, new Gson().toJson(Main.getCompanies()));
+                            coms.askManagerForManagerIncomeCalculation(myCid, new Gson().toJson(Main.getCompanies().toArray(new Company[Main.getCompanies().size()])));
                         }
                     } else {
                         gamePhase = GamePhase.MANAGEMENT_COST_PAYMENT;

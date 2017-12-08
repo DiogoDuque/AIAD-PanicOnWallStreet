@@ -337,6 +337,9 @@ public class InvestorBDI
                 coms.sendManagerIncome(myCid, msg.getSenderCid(), new Gson().toJson(new Integer(income)));
 
                 break;
+            
+            default:
+                break;
         }
     }
 

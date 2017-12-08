@@ -98,7 +98,7 @@ public class ComsService implements IComsService {
 
     @Override
     public void askManagerForManagerIncomeCalculation(String sender, String companies) {
-        broadcast(new IncomeMessage(sender, IncomeMessage.MessageType.ASK_MANAGER_INFO).toJsonStr());
+        broadcast(new IncomeMessage(sender, IncomeMessage.MessageType.ASK_MANAGER_INFO, companies).toJsonStr());
     }
 
     @Override
