@@ -5,7 +5,7 @@ public class Share {
     /**
      * Company to which this share is associated.
      */
-    private final Company company;
+    private Company company;
 
     /**
      * Owner's cid.
@@ -60,6 +60,10 @@ public class Share {
         return bought;
     }
 
+    public String getCompanyName() {
+        return company.getName();
+    }
+
     /**
      * Calculates the average value that will come out when the dices are rolled.
      * @return average of the next value after dice roll.
@@ -83,5 +87,9 @@ public class Share {
         Share share = (Share) o;
 
         return company.equals(share.company) && ownerCid.equals(share.ownerCid);
+    }
+
+    public void updateCompany(Company c) {
+        this.company = c;
     }
 }

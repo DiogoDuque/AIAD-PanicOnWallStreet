@@ -1,5 +1,6 @@
 package agent;
 
+import assets.Company;
 import assets.Share;
 import com.google.gson.Gson;
 import jadex.bdiv3.annotation.*;
@@ -16,10 +17,7 @@ import jadex.commons.future.IntermediateDefaultResultListener;
 import jadex.micro.annotation.*;
 import main.Main;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.*;
 
 @RequiredServices({
         @RequiredService(name="coms", type=IComsService.class, multiple=true, binding=@Binding(scope=RequiredServiceInfo.SCOPE_PLATFORM))
@@ -92,7 +90,6 @@ public class InvestorBDI
         sub.addIntermediateResultListener(new IntermediateDefaultResultListener<String>() {
             @Override
             public void intermediateResultAvailable(String result) {
-                log(result);
                 switch(TimerBDI.getGamePhase()){
                     case NEGOTIATION:
                         NegotiationMessage nMsg = new Gson().fromJson(result, NegotiationMessage.class);
@@ -290,8 +287,15 @@ public class InvestorBDI
             case ASK_INVESTOR_INFO:
                 proposedShares.clear();
                 investorInfos.clear();
-                managerInfos.clear();
-
+                Company[] companies = new Gson().fromJson(msg.getJsonExtra(),Company[].class);
+                for(Share s: boughtShares){
+                    for(Company c: companies){
+                        if(s.getCompanyName().equals(c.getName())){
+                            log("updated share");
+                            s.updateCompany(c);
+                        }
+                    }
+                }
                 coms.sendInfoForInvestorIncomeCalculation(myCid,new Gson().toJson(boughtShares.toArray(new Share[boughtShares.size()])));
                 break;
 

@@ -138,10 +138,11 @@ public class TimerBDI {
                             for(Company c: Main.getCompanies()){
                                 c.rollDice();
                             }
+                            log(Main.getCompanies()+"");
 
                             // now send requests
                             phaseStartTime = currentTime;
-                            coms.askInvestorForIncomeCalculationInfo(myCid);
+                            coms.askInvestorForIncomeCalculationInfo(myCid, new Gson().toJson(Main.getCompanies().toArray(new Company[Main.getCompanies().size()])));
                         }
                     } else {
                         gamePhase = GamePhase.MANAGER_INCOME;
@@ -152,6 +153,19 @@ public class TimerBDI {
                     break;
 
                 case MANAGER_INCOME:
+                    if (timeAfterPhaseStart < Main.MANAGER_INCOME_PHASE_DURATION) {
+                        if(phaseStartTime == -1){ //executed only once
+
+                            // now send requests
+                            phaseStartTime = currentTime;
+                            //coms.askManagerForIncomeCalculationInfo(myCid);
+                        }
+                    } else {
+                        gamePhase = GamePhase.MANAGER_INCOME;
+                        phaseStartTime = -1;
+                        timeAfterPhaseStart = -1;
+                        changePhase = true;
+                    }
                     break;
 
                 case MANAGEMENT_COST_PAYMENT:
