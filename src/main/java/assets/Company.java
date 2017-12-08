@@ -37,7 +37,6 @@ public class Company {
         return values[currIndex];
     }
 
-<<<<<<< HEAD
     int maxValue(){
         return values[currIndex] + this.diceValues[this.diceValues.length - 1];
     }
