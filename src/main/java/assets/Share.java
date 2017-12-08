@@ -43,6 +43,10 @@ public class Share {
         return highestBidder;
     }
 
+    public String getOwnerCid() {
+        return ownerCid;
+    }
+
     public void setHighestBidder(String highestBidder) {
         this.highestBidder = highestBidder;
     }

@@ -193,7 +193,10 @@ public class InvestorBDI
         protected void sendProposals(ArrayList<Share> shares) {
             for (Share share : shares) {
                 int proposalValue = share.getHighestBidderValue() + 1;
-                // send message with proposal
+                Proposal proposal = new Proposal(share, proposalValue);
+                String proposalString = proposal.toJsonStr();
+                String manager = share.getOwnerCid();
+                coms.sendProposal(name, manager, proposalString);
             }
         }
     }
