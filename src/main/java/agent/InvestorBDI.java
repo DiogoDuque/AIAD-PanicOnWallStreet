@@ -62,11 +62,6 @@ public class InvestorBDI
     private ArrayList<Share> proposedShares;
 
     /**
-     * All the shares in game.
-     */
-    private ArrayList<Share> allShares;
-
-    /**
      * Hashmap containing regularly updated info on the other investors. Info can be retrieved with the agent's name as key.
      */
     private HashMap<String, InvestorInfo> investorInfos;
@@ -181,6 +176,11 @@ public class InvestorBDI
 
         public void OrderSharesAverage() {
             //so far this is simply ordering through average share value
+            ArrayList<Share> allShares = new ArrayList<>();
+            for(Map.Entry<String, ArrayList<Share>> entry: managerInfos.entrySet()){
+                allShares.addAll(entry.getValue());
+            }
+
             Collections.sort(allShares, new Comparator<Share>() {
                 @Override
                 public int compare(Share o1, Share o2) {
@@ -317,14 +317,6 @@ public class InvestorBDI
                     break;
                 Integer income = new Gson().fromJson(msg.getJsonExtra(),Integer.class);
                 currentMoney += income;
-                log("I now have "+currentMoney);
-                break;
-
-            case ASK_SHARES:
-                if(!msg.getReceiverCid().equals(myCid))
-                    break;
-                ArrayList<Share> recievedShares = new Gson().fromJson(msg.getJsonExtra(),ArrayList.class);
-                allShares = recievedShares;
                 log("I now have "+currentMoney);
                 break;
 

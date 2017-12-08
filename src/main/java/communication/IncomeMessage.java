@@ -11,7 +11,6 @@ public class IncomeMessage extends Message {
         ASK_INVESTOR_INFO,
         INVESTOR_INFO,
         INVESTOR_RESULT,
-        ASK_SHARES,
 
         ASK_MANAGER_INFO,
         MANAGER_INFO,
