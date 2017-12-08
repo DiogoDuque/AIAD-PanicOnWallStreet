@@ -16,6 +16,7 @@ import jadex.commons.future.IntermediateDefaultResultListener;
 import jadex.micro.annotation.*;
 import main.Main;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -175,7 +176,8 @@ public class InvestorBDI
             this.goal = goal;
         }
 
-        public void invest(final IPlan plan) {}
+        public abstract void invest(final IPlan plan);
+        protected abstract ArrayList<Share> pickShares();
     }
 
     @Plan
@@ -185,8 +187,13 @@ public class InvestorBDI
         }
 
         @PlanBody
-        public void	invest(final IPlan plan) {
+        public void invest(final IPlan plan) {
             log("Adopted conservative plan.");
+        }
+
+        protected ArrayList<Share> pickShares() {
+            ArrayList<Share> shares = new ArrayList<>();
+            return shares;
         }
     }
 
@@ -197,8 +204,13 @@ public class InvestorBDI
         }
 
         @PlanBody
-        public void	invest(final IPlan plan) {
+        public void invest(final IPlan plan) {
             log("Adopted regular plan.");
+        }
+
+        protected ArrayList<Share> pickShares() {
+            ArrayList<Share> shares = new ArrayList<>();
+            return shares;
         }
     }
 
@@ -211,6 +223,11 @@ public class InvestorBDI
         @PlanBody
         public void	invest(final IPlan plan) {
             log("Adopted risky plan.");
+        }
+
+        protected ArrayList<Share> pickShares() {
+            ArrayList<Share> shares = new ArrayList<>();
+            return shares;
         }
     }
 
