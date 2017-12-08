@@ -1,5 +1,7 @@
 package assets;
 
+import com.google.gson.Gson;
+
 import java.util.Random;
 
 public class Company {
@@ -35,10 +37,10 @@ public class Company {
         return values[currIndex];
     }
 
-    /**
-     * Calculates the average value that will come out when the dices are rolled.
-     * @return average of the next value after dice roll.
-     */
+        /**
+         * Calculates the average value that will come out when the dices are rolled.
+         * @return average of the next value after dice roll.
+         */
     float getAverageNextValue() {
         int averageValue=0;
 
@@ -81,7 +83,7 @@ public class Company {
 
     @Override
     public String toString() {
-        return "{"+name+"("+(values[values.length-1]-values[0])+")}";
+        return "{"+name+"("+values[currIndex]+")}";
     }
 
     @Override
@@ -92,5 +94,9 @@ public class Company {
         Company company = (Company) o;
 
         return name.equals(company.name);
+    }
+
+    public String toJsonStr(){
+        return new Gson().toJson(this);
     }
 }

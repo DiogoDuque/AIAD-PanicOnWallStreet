@@ -1,5 +1,6 @@
 package agent;
 
+import assets.Company;
 import assets.Share;
 import com.google.gson.Gson;
 import jadex.bdiv3.annotation.*;
@@ -16,10 +17,7 @@ import jadex.commons.future.IntermediateDefaultResultListener;
 import jadex.micro.annotation.*;
 import main.Main;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.*;
 
 @RequiredServices({
         @RequiredService(name="coms", type=IComsService.class, multiple=true, binding=@Binding(scope=RequiredServiceInfo.SCOPE_PLATFORM))
@@ -92,7 +90,6 @@ public class InvestorBDI
         sub.addIntermediateResultListener(new IntermediateDefaultResultListener<String>() {
             @Override
             public void intermediateResultAvailable(String result) {
-                log(result);
                 switch(TimerBDI.getGamePhase()){
                     case NEGOTIATION:
                         NegotiationMessage nMsg = new Gson().fromJson(result, NegotiationMessage.class);
@@ -102,6 +99,11 @@ public class InvestorBDI
                     case INVESTOR_INCOME:
                         IncomeMessage iiMsg = new Gson().fromJson(result, IncomeMessage.class);
                         parseInvestorIncomeMessage(iiMsg);
+                        break;
+
+                    case MANAGER_INCOME:
+                        IncomeMessage miMsg = new Gson().fromJson(result, IncomeMessage.class);
+                        parseManagerIncomeMessage(miMsg);
                         break;
                 }
             }
@@ -270,7 +272,7 @@ public class InvestorBDI
                 break;*/
 
             default:
-                log(msg.toJsonStr());
+                //log(msg.toJsonStr());
                 break;
         }
     }
@@ -290,8 +292,15 @@ public class InvestorBDI
             case ASK_INVESTOR_INFO:
                 proposedShares.clear();
                 investorInfos.clear();
-                managerInfos.clear();
-
+                Company[] companies = new Gson().fromJson(msg.getJsonExtra(),Company[].class);
+                for(Share s: boughtShares){
+                    for(Company c: companies){
+                        if(s.getCompanyName().equals(c.getName())){
+                            log("updated share");
+                            s.updateCompany(c);
+                        }
+                    }
+                }
                 coms.sendInfoForInvestorIncomeCalculation(myCid,new Gson().toJson(boughtShares.toArray(new Share[boughtShares.size()])));
                 break;
 
@@ -305,6 +314,31 @@ public class InvestorBDI
 
             default:
                 //log(msg.toJsonStr());
+                break;
+        }
+    }
+
+    /**
+     * Called as a parser of messages in the Manager Income phase. Receives a message and deals with it the best way it can.
+     * @param msg negotation message to be parsed.
+     */
+    private void parseManagerIncomeMessage(IncomeMessage msg){
+        String myCid = agent.getComponentIdentifier().getLocalName();
+
+        switch (msg.getMsgType()){
+            case ASK_INVESTOR_FOR_MANAGER_INCOME:
+                if(!msg.getReceiverCid().equals(myCid)) //if msg not for me, ignore
+                    break;
+                Share share = new Gson().fromJson(msg.getJsonExtra(), Share.class);
+                int income = share.getHighestBidderValue();
+                if(income > currentMoney){
+                    log("WARNING, I'm in debt!");
+                }
+                coms.sendManagerIncome(myCid, msg.getSenderCid(), new Gson().toJson(new Integer(income)));
+
+                break;
+            
+            default:
                 break;
         }
     }

@@ -126,22 +126,24 @@ public class TimerBDI {
                         phaseStartTime = -1;
                         timeAfterPhaseStart = -1;
                         changePhase = true;
-                        log("Started Investor Income Phase");
                     }
                     break;
 
                 case INVESTOR_INCOME:
                     if (timeAfterPhaseStart < Main.INVESTOR_INCOME_PHASE_DURATION) {
                         if(phaseStartTime == -1){ //executed only once
+                            log("Started Investor Income Phase");
+
                             //roll dices
                             log(Main.getCompanies()+"");
                             for(Company c: Main.getCompanies()){
                                 c.rollDice();
                             }
+                            log(Main.getCompanies()+"");
 
                             // now send requests
                             phaseStartTime = currentTime;
-                            coms.askInvestorForIncomeCalculationInfo(myCid);
+                            coms.askInvestorForIncomeCalculationInfo(myCid, new Gson().toJson(Main.getCompanies().toArray(new Company[Main.getCompanies().size()])));
                         }
                     } else {
                         gamePhase = GamePhase.MANAGER_INCOME;
@@ -152,6 +154,20 @@ public class TimerBDI {
                     break;
 
                 case MANAGER_INCOME:
+                    if (timeAfterPhaseStart < Main.MANAGER_INCOME_PHASE_DURATION) {
+                        if(phaseStartTime == -1){ //executed only once
+                            log("Started Manager Income Phase");
+
+                            // now send requests
+                            phaseStartTime = currentTime;
+                            coms.askManagerForManagerIncomeCalculation(myCid, new Gson().toJson(Main.getCompanies().toArray(new Company[Main.getCompanies().size()])));
+                        }
+                    } else {
+                        gamePhase = GamePhase.MANAGEMENT_COST_PAYMENT;
+                        phaseStartTime = -1;
+                        timeAfterPhaseStart = -1;
+                        changePhase = true;
+                    }
                     break;
 
                 case MANAGEMENT_COST_PAYMENT:
