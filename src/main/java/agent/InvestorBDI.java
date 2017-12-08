@@ -299,6 +299,23 @@ public class InvestorBDI
 
         protected ArrayList<Share> pickShares(ArrayList<Share> allShares) {
             ArrayList<Share> shares = new ArrayList<>();
+
+            int earningsGoal = goal.getDifferenceToRichest();
+            int money = currentMoney;
+            int availableShares = allShares.size();
+
+            int currentShareIndex = 0;
+
+            while (earningsGoal > 0 && money > 0 && availableShares > 0) {
+                Share currentShare = allShares.get(currentShareIndex);
+                if (money > currentShare.getHighestBidderValue()) {
+                    shares.add(currentShare);
+                    money -= currentShare.getHighestBidderValue();
+                    earningsGoal -= currentShare.getHighestBidderValue();
+                    availableShares--;
+                }
+            }
+
             return shares;
         }
     }
