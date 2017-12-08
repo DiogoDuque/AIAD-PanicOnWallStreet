@@ -15,6 +15,7 @@ import main.Main;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.*;
 
 @RequiredServices({
         @RequiredService(name="coms", type=IComsService.class, multiple=true, binding=@Binding(scope=RequiredServiceInfo.SCOPE_PLATFORM))
@@ -59,7 +60,6 @@ public class ManagerBDI
         ownedShares.add(new Share(companies.get(r.nextInt(companies.size())), myCid));
         ownedShares.add(new Share(companies.get(r.nextInt(companies.size())), myCid));
         ownedShares.add(new Share(companies.get(r.nextInt(companies.size())), myCid));
-
         this.coms = (IComsService)reqServ.getRequiredService("coms").get();
         IComsService iComs = SServiceProvider.getService(agent,IComsService.class, RequiredServiceInfo.SCOPE_PLATFORM).get();
         ISubscriptionIntermediateFuture<String> sub = iComs.subscribeComs();
@@ -108,7 +108,7 @@ public class ManagerBDI
                     }
 
                     if(!s.isBought()){ //delete proposals if not bought. else, ask for money
-                        s.setHighestBidderValue(-1);
+                        s.setHighestBidderValue(0);
                         s.setHighestBidder(null);
 
                     } else coms.askInvestorForManagerIncome(myCid, s.getHighestBidder(), s.toJsonStr());
@@ -146,6 +146,7 @@ public class ManagerBDI
                         shares.add(s);
                 }
                 coms.sendShares(agent.getComponentIdentifier().getName(), new Gson().toJson(shares.toArray(new Share[shares.size()])));
+
                 break;
 
             /*case NEW_PROPOSAL:

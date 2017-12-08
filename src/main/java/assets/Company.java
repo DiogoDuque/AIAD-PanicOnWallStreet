@@ -37,10 +37,18 @@ public class Company {
         return values[currIndex];
     }
 
-        /**
-         * Calculates the average value that will come out when the dices are rolled.
-         * @return average of the next value after dice roll.
-         */
+    int maxValue(){
+        return values[currIndex] + this.diceValues[this.diceValues.length - 1];
+    }
+
+    int minValue(){
+        return values[currIndex] + this.diceValues[0];
+    }
+
+    /**
+     * Calculates the average value that will come out when the dices are rolled.
+     * @return average of the next value after dice roll.
+     */
     float getAverageNextValue() {
         int averageValue=0;
 

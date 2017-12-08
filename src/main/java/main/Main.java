@@ -35,16 +35,16 @@ public class Main {
 	{
 	    companies = new ArrayList<>();
 	    companies.add(new Company("Weenie Tube",
-                                new int[]{-20, -10, 0, 30, 40, 50, 60, 70},
+                                new int[]{-20, -10, 0, 30, 40, 50, 60, 190},
                                 new int[]{-7, -3, -2, 2, 3, 7}));
         companies.add(new Company("Beach Kit",
-                                new int[]{-10, 0, 0, 30, 40, 40, 60, 60},
+                                new int[]{-10, 0, 0, 30, 40, 40, 60, 90},
                                 new int[]{-3, -2, -1, 1, 2, 3}));
         companies.add(new Company("Antisnore Pillow",
-                                new int[]{0, 10, 20, 30, 30, 40, 50, 60},
+                                new int[]{0, 10, 20, 30, 30, 40, 50, 50},
                                 new int[]{-2, -1, 0, 0, 1, 2}));
         companies.add(new Company("Hamster Radio",
-                                new int[]{20, 20, 20, 30, 30, 30, 40, 40},
+                                new int[]{20, 20, 20, 30, 300, 30, 40, 50},
                                 new int[]{-1, -1, 0, 0, 1, 1}));
 
 		IFuture<IExternalAccess> fut = Starter.createPlatform();

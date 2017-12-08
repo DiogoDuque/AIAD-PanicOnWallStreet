@@ -32,6 +32,7 @@ public class Share {
     public Share(Company company, String ownerCid) {
         this.company = company;
         this.ownerCid = ownerCid;
+        this.highestBidderValue = 0;
     }
 
     public int getCurrentValue() {
@@ -72,6 +73,14 @@ public class Share {
      */
     public float getShareAverageValue(){
         return company.getAverageNextValue();
+    }
+
+    public int getMaxPossibleValue(){
+        return company.maxValue();
+    }
+
+    public int getMinPossibleValue(){
+        return company.minValue();
     }
 
     @Override
