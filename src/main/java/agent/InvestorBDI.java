@@ -16,10 +16,7 @@ import jadex.commons.future.IntermediateDefaultResultListener;
 import jadex.micro.annotation.*;
 import main.Main;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.*;
 
 @RequiredServices({
         @RequiredService(name="coms", type=IComsService.class, multiple=true, binding=@Binding(scope=RequiredServiceInfo.SCOPE_PLATFORM))
@@ -63,6 +60,11 @@ public class InvestorBDI
      * Shares whose proposals have been accepted by managers. However, they can be rejected at any time, so this is a very volatile list.
      */
     private ArrayList<Share> proposedShares;
+
+    /**
+     * All the shares in game.
+     */
+    private ArrayList<Share> allShares;
 
     /**
      * Hashmap containing regularly updated info on the other investors. Info can be retrieved with the agent's name as key.
@@ -176,6 +178,18 @@ public class InvestorBDI
         }
 
         public void invest(final IPlan plan) {}
+
+        public void OrderSharesAverage() {
+            //so far this is simply ordering through average share value
+            Collections.sort(allShares, new Comparator<Share>() {
+                @Override
+                public int compare(Share o1, Share o2) {
+
+                    float compareValue = o1.getShareAverageValue();
+                    return Float.compare(compareValue,o2.getShareAverageValue());
+                }
+            });
+        }
     }
 
     @Plan
@@ -199,6 +213,9 @@ public class InvestorBDI
         @PlanBody
         public void	invest(final IPlan plan) {
             log("Adopted regular plan.");
+            OrderSharesAverage();
+            goal.setDifferenceToRichest();
+
         }
     }
 
@@ -300,6 +317,14 @@ public class InvestorBDI
                     break;
                 Integer income = new Gson().fromJson(msg.getJsonExtra(),Integer.class);
                 currentMoney += income;
+                log("I now have "+currentMoney);
+                break;
+
+            case ASK_SHARES:
+                if(!msg.getReceiverCid().equals(myCid))
+                    break;
+                ArrayList<Share> recievedShares = new Gson().fromJson(msg.getJsonExtra(),ArrayList.class);
+                allShares = recievedShares;
                 log("I now have "+currentMoney);
                 break;
 

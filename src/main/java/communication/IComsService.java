@@ -106,4 +106,12 @@ public interface IComsService {
      * @param money amount of money resulting from the income.
      */
     void sendInvestorIncomeCalculationResult(String sender, String receiver, String money);
+
+    /**
+     * Used by investors. Contains the income for a specific investor.
+     * @param sender sender's cid.
+     * @param shares sender's shares.
+     */
+    void sendInvestorAllShares(String sender, String shares);
+
 }
