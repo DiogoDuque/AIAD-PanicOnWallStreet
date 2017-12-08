@@ -37,6 +37,11 @@ public class ComsService implements IComsService {
     }
 
     @Override
+    public void askInfo(String sender){
+        broadcast(new NegotiationMessage(sender, NegotiationMessage.NegotiationMessageType.ASK_INFO).toJsonStr());
+    }
+
+    @Override
     public void sendShares(String sender, String shares) {
         broadcast(new NegotiationMessage(sender, NegotiationMessage.NegotiationMessageType.MANAGER_SHARES, shares).toJsonStr());
     }
@@ -77,7 +82,17 @@ public class ComsService implements IComsService {
     }
 
     @Override
-    public void askInfo(String sender){
-        broadcast(new NegotiationMessage(sender, NegotiationMessage.NegotiationMessageType.ASK_INFO).toJsonStr());
+    public void askInvestorForIncomeCalculationInfo(String sender) {
+        broadcast(new IncomeMessage(sender, IncomeMessage.MessageType.ASK_INVESTOR_INFO).toJsonStr());
+    }
+
+    @Override
+    public void sendInfoForInvestorIncomeCalculation(String sender, String shares) {
+        broadcast(new IncomeMessage(sender, IncomeMessage.MessageType.INVESTOR_INFO, shares).toJsonStr());
+    }
+
+    @Override
+    public void sendInvestorIncomeCalculationResult(String sender, String receiver, String money) {
+        broadcast(new IncomeMessage(sender, receiver, IncomeMessage.MessageType.INVESTOR_RESULT, money).toJsonStr());
     }
 }
