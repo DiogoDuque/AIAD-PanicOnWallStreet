@@ -32,6 +32,7 @@ public class Share {
     public Share(Company company, String ownerCid) {
         this.company = company;
         this.ownerCid = ownerCid;
+        this.highestBidderValue = 0;
     }
 
     public int getCurrentValue() {

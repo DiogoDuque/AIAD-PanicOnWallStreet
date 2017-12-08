@@ -108,7 +108,7 @@ public class ManagerBDI
                     }
 
                     if(!s.isBought()){ //delete proposals if not bought. else, ask for money
-                        s.setHighestBidderValue(-1);
+                        s.setHighestBidderValue(0);
                         s.setHighestBidder(null);
 
                     } else coms.askInvestorForManagerIncome(myCid, s.getHighestBidder(), s.toJsonStr());
