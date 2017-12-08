@@ -167,7 +167,7 @@ public class InvestorBDI
         public void invest(final IPlan plan) {}
     }
 
-    @Plan(trigger=@Trigger(goals=BeTheRichestInvestorGoal.class))
+    @Plan
     public class ConservativePlan extends InvestPlan {
         public ConservativePlan(BeTheRichestInvestorGoal goal) {
             super(goal);
@@ -179,7 +179,7 @@ public class InvestorBDI
         }
     }
 
-    @Plan(trigger=@Trigger(goals=BeTheRichestInvestorGoal.class))
+    @Plan
     public class RegularPlan extends InvestPlan {
         public RegularPlan(BeTheRichestInvestorGoal goal) {
             super(goal);
@@ -195,7 +195,7 @@ public class InvestorBDI
         // send proposals
     }
 
-    @Plan(trigger=@Trigger(goals=BeTheRichestInvestorGoal.class))
+    @Plan
     public class RiskyPlan extends InvestPlan {
         public RiskyPlan(BeTheRichestInvestorGoal goal) {
             super(goal);
