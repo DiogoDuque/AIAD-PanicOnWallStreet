@@ -5,10 +5,7 @@ import com.google.gson.Gson;
 import communication.InvestorInfo;
 import communication.NegotiationMessage;
 import communication.Proposal;
-import jadex.bdiv3.annotation.Belief;
-import jadex.bdiv3.annotation.Goal;
-import jadex.bdiv3.annotation.Plan;
-import jadex.bdiv3.annotation.Trigger;
+import jadex.bdiv3.annotation.*;
 import jadex.bdiv3.features.IBDIAgentFeature;
 import jadex.bridge.IInternalAccess;
 import jadex.bridge.component.IExecutionFeature;
@@ -21,10 +18,7 @@ import jadex.micro.annotation.*;
 import communication.IComsService;
 import main.Main;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @RequiredServices({
         @RequiredService(name="coms", type=IComsService.class, multiple=true, binding=@Binding(scope=RequiredServiceInfo.SCOPE_PLATFORM))
@@ -49,6 +43,10 @@ public class InvestorBDI
      */
 	private IComsService coms;
 
+    /**
+     * Agent name.
+     */
+    private String name;
 
     /**
      * Current amount of money.
@@ -77,6 +75,8 @@ public class InvestorBDI
 
     @AgentCreated
     public void init(){
+        name = agent.getComponentIdentifier().getLocalName();
+
         currentMoney = Main.STARTING_MONEY;
         boughtShares = new ArrayList<>();
         proposedShares = new ArrayList<>();
@@ -102,17 +102,66 @@ public class InvestorBDI
         });
     }
 
-    @Goal(recur=true)
+    @Goal
     public class BeTheRichestInvestorGoal {
-        public BeTheRichestInvestorGoal() {
+        @GoalResult
+        protected ArrayList<InvestorInfo> currentInvestorsInfo;
 
+        @GoalResult
+        protected int differenceToRichest;
+
+        private boolean amITheRichest() {
+            return this.currentInvestorsInfo.get(this.currentInvestorsInfo.size() - 1).getInvestorName().equals(InvestorBDI.this.name);
+        }
+
+        private boolean amIThePoorest() {
+            return this.currentInvestorsInfo.get(0).getInvestorName().equals(InvestorBDI.this.name);
+        }
+
+        protected void setDifferenceToRichest() {
+            if (amITheRichest() || this.currentInvestorsInfo.size() <= 1) {
+                this.differenceToRichest = 0;
+            } else {
+                int richestInvestorMoney = this.currentInvestorsInfo.get(this.currentInvestorsInfo.size() - 1).getCurrentMoney();
+
+                for (InvestorInfo info : this.currentInvestorsInfo) {
+                    if (info.getInvestorName().equals(InvestorBDI.this.name)) {
+                        this.differenceToRichest = richestInvestorMoney - info.getCurrentMoney();
+                    }
+                }
+            }
+        }
+
+        public BeTheRichestInvestorGoal() {
+            this.currentInvestorsInfo = new ArrayList<InvestorInfo>(InvestorBDI.this.investorInfos.values());
+            Collections.sort(this.currentInvestorsInfo);
+            this.setDifferenceToRichest();
+
+            if (amITheRichest()) {
+                InvestorBDI.this.agentFeature.adoptPlan(new ConservativePlan());
+            } else if (amIThePoorest()) {
+                InvestorBDI.this.agentFeature.adoptPlan(new RiskyPlan());
+            } else {
+                InvestorBDI.this.agentFeature.adoptPlan(new RegularPlan());
+            }
         }
     }
 
     @Plan(trigger=@Trigger(goals=BeTheRichestInvestorGoal.class))
-    protected void conservativePlan(BeTheRichestInvestorGoal goal) {
-        // get current money
-        // get diff between richest and me
+    public class ConservativePlan {
+        public ConservativePlan() {
+            log("conservative");
+        }
+        // get current available shares (with current proposal - or 0 when none)
+        // order shares with algorithm
+        // choose shares to propose to cover difference
+        // send proposals
+    }
+    @Plan(trigger=@Trigger(goals=BeTheRichestInvestorGoal.class))
+    public class RegularPlan {
+        public RegularPlan() {
+            log("regular");
+        }
         // get current available shares (with current proposal - or 0 when none)
         // order shares with algorithm
         // choose shares to propose to cover difference
@@ -120,25 +169,15 @@ public class InvestorBDI
     }
 
     @Plan(trigger=@Trigger(goals=BeTheRichestInvestorGoal.class))
-    protected void riskyPlan(BeTheRichestInvestorGoal goal) {
-        // get current money
-        // get diff between richest and me
+    public class RiskyPlan {
+        public RiskyPlan() {
+            log("risky");
+        }
         // get current available shares (with current proposal - or 0 when none)
         // order shares with algorithm
         // choose shares to propose to cover difference
         // send proposals
     }
-
-    @Plan(trigger=@Trigger(goals=BeTheRichestInvestorGoal.class))
-    protected void regularPlan(BeTheRichestInvestorGoal goal) {
-        // get current money
-        // get diff between richest and me
-        // get current available shares (with current proposal - or 0 when none)
-        // order shares with algorithm
-        // choose shares to propose to cover difference
-        // send proposals
-    }
-
 
     @AgentBody
 	public void executeBody()
@@ -183,7 +222,7 @@ public class InvestorBDI
 
         switch (msg.getMsgType()){
             case ASK_INFO:
-                InvestorInfo info = new InvestorInfo(currentMoney, boughtShares, proposedShares);
+                InvestorInfo info = new InvestorInfo(msg.getSenderCid(), currentMoney, boughtShares, proposedShares);
                 coms.sendInvestorInfo(myCid, info.toJsonStr());
                 break;
 
