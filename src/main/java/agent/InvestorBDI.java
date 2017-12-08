@@ -16,15 +16,7 @@ import jadex.commons.future.IntermediateDefaultResultListener;
 import jadex.micro.annotation.*;
 import main.Main;
 
-<<<<<<< HEAD
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-=======
 import java.util.*;
->>>>>>> selectshare
 
 @RequiredServices({
         @RequiredService(name="coms", type=IComsService.class, multiple=true, binding=@Binding(scope=RequiredServiceInfo.SCOPE_PLATFORM))
@@ -154,6 +146,10 @@ public class InvestorBDI
             }
         }
 
+        public int getDifferenceToRichest() {
+            return differenceToRichest;
+        }
+
         public BeTheRichestInvestorGoal() {
             this.currentInvestorsInfo = new ArrayList<InvestorInfo>(InvestorBDI.this.investorInfos.values());
 
@@ -180,25 +176,21 @@ public class InvestorBDI
             this.goal = goal;
         }
 
-        public void invest(final IPlan plan) {}
-
-        public void OrderSharesAverage() {
-            //so far this is simply ordering through average share value
-            ArrayList<Share> allShares = new ArrayList<>();
-            for(Map.Entry<String, ArrayList<Share>> entry: managerInfos.entrySet()){
-                allShares.addAll(entry.getValue());
-            }
-
-            Collections.sort(allShares, new Comparator<Share>() {
-                @Override
-                public int compare(Share o1, Share o2) {
-
-                    float compareValue = o1.getShareAverageValue();
-                    return Float.compare(compareValue,o2.getShareAverageValue());
-                }
-            });
+        public void invest(final IPlan plan) {
+            ArrayList<Share> orderedShares = orderSharesAverage();
+            ArrayList<Share> sharesToPropose = pickShares(orderedShares);
+            sendProposals(sharesToPropose);
         }
-        protected abstract ArrayList<Share> pickShares();
+
+        protected abstract ArrayList<Share> orderSharesAverage();
+        protected abstract ArrayList<Share> pickShares(ArrayList<Share> allShares);
+
+        protected void sendProposals(ArrayList<Share> shares) {
+            for (Share share : shares) {
+                int proposalValue = share.getHighestBidderValue() + 1;
+                // send message with proposal
+            }
+        }
     }
 
     @Plan
@@ -210,9 +202,26 @@ public class InvestorBDI
         @PlanBody
         public void invest(final IPlan plan) {
             log("Adopted conservative plan.");
+            super.invest(plan);
         }
 
-        protected ArrayList<Share> pickShares() {
+        protected ArrayList<Share> orderSharesAverage() {
+            ArrayList<Share> allShares = new ArrayList<>();
+            for(Map.Entry<String, ArrayList<Share>> entry: managerInfos.entrySet()){
+                allShares.addAll(entry.getValue());
+            }
+
+            // Sorts based on ShareAverageValue, MinPossibleValue and HighestBidderValue
+            Collections.sort(allShares, (share1, share2) -> {
+                double share1Value = share1.getShareAverageValue()*0.8 + share1.getMinPossibleValue()*0.2 - share1.getHighestBidderValue();
+                double share2Value = share2.getShareAverageValue()*0.8 + share2.getMinPossibleValue()*0.2 - share2.getHighestBidderValue();
+                return Double.compare(share2Value, share1Value);
+            });
+
+            return allShares;
+        }
+
+        protected ArrayList<Share> pickShares(ArrayList<Share> allShares) {
             ArrayList<Share> shares = new ArrayList<>();
             return shares;
         }
@@ -227,12 +236,26 @@ public class InvestorBDI
         @PlanBody
         public void invest(final IPlan plan) {
             log("Adopted regular plan.");
-            OrderSharesAverage();
-            goal.setDifferenceToRichest();
-
+            super.invest(plan);
         }
 
-        protected ArrayList<Share> pickShares() {
+        protected ArrayList<Share> orderSharesAverage() {
+            ArrayList<Share> allShares = new ArrayList<>();
+            for(Map.Entry<String, ArrayList<Share>> entry: managerInfos.entrySet()){
+                allShares.addAll(entry.getValue());
+            }
+
+            // Sorts based on ShareAverageValue and HighestBidderValue
+            Collections.sort(allShares, (share1, share2) -> {
+                double share1Value = share1.getShareAverageValue() - share1.getHighestBidderValue();
+                double share2Value = share2.getShareAverageValue() - share2.getHighestBidderValue();
+                return Double.compare(share2Value, share1Value);
+            });
+
+            return allShares;
+        }
+
+        protected ArrayList<Share> pickShares(ArrayList<Share> allShares) {
             ArrayList<Share> shares = new ArrayList<>();
             return shares;
         }
@@ -247,9 +270,26 @@ public class InvestorBDI
         @PlanBody
         public void	invest(final IPlan plan) {
             log("Adopted risky plan.");
+            super.invest(plan);
         }
 
-        protected ArrayList<Share> pickShares() {
+        protected ArrayList<Share> orderSharesAverage() {
+            ArrayList<Share> allShares = new ArrayList<>();
+            for(Map.Entry<String, ArrayList<Share>> entry: managerInfos.entrySet()){
+                allShares.addAll(entry.getValue());
+            }
+
+            // Sorts based on ShareAverageValue, MaxPossibleValue and HighestBidderValue
+            Collections.sort(allShares, (share1, share2) -> {
+                double share1Value = share1.getShareAverageValue()*0.8 + share1.getMaxPossibleValue()*0.2 - share1.getHighestBidderValue();
+                double share2Value = share2.getShareAverageValue()*0.8 + share2.getMaxPossibleValue()*0.2 - share2.getHighestBidderValue();
+                return Double.compare(share2Value, share1Value);
+            });
+
+            return allShares;
+        }
+
+        protected ArrayList<Share> pickShares(ArrayList<Share> allShares) {
             ArrayList<Share> shares = new ArrayList<>();
             return shares;
         }

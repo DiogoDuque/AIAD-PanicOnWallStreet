@@ -76,7 +76,7 @@ public class ManagerBDI
                         // TODO to be moved to next case
                         for(Share s: ownedShares){
                             if(!s.isBought()){
-                                s.setHighestBidderValue(-1);
+                                s.setHighestBidderValue(0);
                                 s.setHighestBidder(null);
                             }
                         }
