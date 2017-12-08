@@ -7,6 +7,7 @@ import communication.NegotiationMessage;
 import communication.Proposal;
 import jadex.bdiv3.annotation.*;
 import jadex.bdiv3.features.IBDIAgentFeature;
+import jadex.bdiv3.runtime.IPlan;
 import jadex.bridge.IInternalAccess;
 import jadex.bridge.component.IExecutionFeature;
 import jadex.bridge.service.RequiredServiceInfo;
@@ -111,10 +112,18 @@ public class InvestorBDI
         protected int differenceToRichest;
 
         private boolean amITheRichest() {
+            if (this.currentInvestorsInfo.size() < 1) {
+                return false;
+            }
+
             return this.currentInvestorsInfo.get(this.currentInvestorsInfo.size() - 1).getInvestorName().equals(InvestorBDI.this.name);
         }
 
         private boolean amIThePoorest() {
+            if (this.currentInvestorsInfo.size() < 1) {
+                return false;
+            }
+
             return this.currentInvestorsInfo.get(0).getInvestorName().equals(InvestorBDI.this.name);
         }
 
@@ -137,30 +146,48 @@ public class InvestorBDI
             Collections.sort(this.currentInvestorsInfo);
             this.setDifferenceToRichest();
 
+            log("Picking a plan...");
             if (amITheRichest()) {
-                InvestorBDI.this.agentFeature.adoptPlan(new ConservativePlan());
+                InvestorBDI.this.agentFeature.adoptPlan(new ConservativePlan(this));
             } else if (amIThePoorest()) {
-                InvestorBDI.this.agentFeature.adoptPlan(new RiskyPlan());
+                InvestorBDI.this.agentFeature.adoptPlan(new RiskyPlan(this));
             } else {
-                InvestorBDI.this.agentFeature.adoptPlan(new RegularPlan());
+                InvestorBDI.this.agentFeature.adoptPlan(new RegularPlan(this));
             }
         }
     }
 
-    @Plan(trigger=@Trigger(goals=BeTheRichestInvestorGoal.class))
-    public class ConservativePlan {
-        public ConservativePlan() {
-            log("conservative");
+    public abstract class InvestPlan {
+        protected BeTheRichestInvestorGoal goal;
+
+        public InvestPlan(BeTheRichestInvestorGoal goal) {
+            this.goal = goal;
         }
-        // get current available shares (with current proposal - or 0 when none)
-        // order shares with algorithm
-        // choose shares to propose to cover difference
-        // send proposals
+
+        public void invest(final IPlan plan) {}
     }
+
     @Plan(trigger=@Trigger(goals=BeTheRichestInvestorGoal.class))
-    public class RegularPlan {
-        public RegularPlan() {
-            log("regular");
+    public class ConservativePlan extends InvestPlan {
+        public ConservativePlan(BeTheRichestInvestorGoal goal) {
+            super(goal);
+        }
+
+        @PlanBody
+        public void	invest(final IPlan plan) {
+            log("Adopted conservative plan.");
+        }
+    }
+
+    @Plan(trigger=@Trigger(goals=BeTheRichestInvestorGoal.class))
+    public class RegularPlan extends InvestPlan {
+        public RegularPlan(BeTheRichestInvestorGoal goal) {
+            super(goal);
+        }
+
+        @PlanBody
+        public void	invest(final IPlan plan) {
+            log("Adopted regular plan.");
         }
         // get current available shares (with current proposal - or 0 when none)
         // order shares with algorithm
@@ -169,9 +196,14 @@ public class InvestorBDI
     }
 
     @Plan(trigger=@Trigger(goals=BeTheRichestInvestorGoal.class))
-    public class RiskyPlan {
-        public RiskyPlan() {
-            log("risky");
+    public class RiskyPlan extends InvestPlan {
+        public RiskyPlan(BeTheRichestInvestorGoal goal) {
+            super(goal);
+        }
+
+        @PlanBody
+        public void	invest(final IPlan plan) {
+            log("Adopted risky plan.");
         }
         // get current available shares (with current proposal - or 0 when none)
         // order shares with algorithm
