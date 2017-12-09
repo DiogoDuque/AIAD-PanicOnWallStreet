@@ -231,6 +231,22 @@ public class InvestorBDI
 
         protected ArrayList<Share> pickShares(ArrayList<Share> allShares) {
             ArrayList<Share> shares = new ArrayList<>();
+            int earningsGoal = goal.getDifferenceToRichest();
+            double money = currentMoney * 0.5;
+            int availableShares = allShares.size();
+
+            int currentShareIndex = 0;
+
+            while (earningsGoal > 0 && money > 0 && availableShares > 0) {
+                Share currentShare = allShares.get(currentShareIndex);
+                if (money > currentShare.getHighestBidderValue()) {
+                    shares.add(currentShare);
+                    money -= currentShare.getHighestBidderValue();
+                    earningsGoal -= currentShare.getHighestBidderValue();
+                    availableShares--;
+                }
+            }
+
             return shares;
         }
     }
@@ -265,6 +281,31 @@ public class InvestorBDI
 
         protected ArrayList<Share> pickShares(ArrayList<Share> allShares) {
             ArrayList<Share> shares = new ArrayList<>();
+            int earningsGoal = goal.getDifferenceToRichest();
+            double toSpend = 1;
+            if (earningsGoal/currentMoney == 0.0){
+                toSpend = 0.3;
+            }
+            else if (earningsGoal/currentMoney < 0.5){
+                toSpend = earningsGoal/currentMoney + 0.1;
+            }
+            else if (earningsGoal/currentMoney <= 1){
+                toSpend = earningsGoal/currentMoney;
+            }
+            double money = currentMoney * toSpend;
+            int availableShares = allShares.size();
+
+            int currentShareIndex = 0;
+
+            while (money > 0 && availableShares > 0) {
+                Share currentShare = allShares.get(currentShareIndex);
+                if (money > currentShare.getHighestBidderValue()) {
+                    shares.add(currentShare);
+                    money -= currentShare.getHighestBidderValue();
+                    earningsGoal -= currentShare.getHighestBidderValue();
+                    availableShares--;
+                }
+            }
             return shares;
         }
     }
