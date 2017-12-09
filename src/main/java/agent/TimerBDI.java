@@ -38,7 +38,9 @@ public class TimerBDI {
         INVESTOR_INCOME,
         MANAGER_INCOME,
         MANAGEMENT_COST_PAYMENT,
-        AUCTION
+        AUCTION,
+
+        GAMEOVER
     }
 
     @Agent
@@ -211,9 +213,8 @@ public class TimerBDI {
                         }
                     } else {
                         if(round >= Main.N_ROUNDS){
-                            // todo handle end of the game
-                            log("GAME FINISHED");
-                            return;
+                            gamePhase = GamePhase.GAMEOVER;
+                            // todo move/change this code
                         }
                         gamePhase = GamePhase.AUCTION;
                         phaseStartTime = -1;
