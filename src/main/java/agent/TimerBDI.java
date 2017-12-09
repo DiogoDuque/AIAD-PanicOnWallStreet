@@ -111,7 +111,7 @@ public class TimerBDI {
                         if(aMsg.getMsgType() == AuctionMessage.MessageType.BID_ON_SHARE) {
                             AuctionManager auctionManager = AuctionManager.getInstance();
                             if(auctionManager == null){
-                                log("AuctionManager not found");
+                                log("WARNING: AuctionManager not found");
                                 break;
                             }
                             Proposal proposal = new Gson().fromJson(aMsg.getJsonExtra(), Proposal.class);
@@ -165,11 +165,10 @@ public class TimerBDI {
                             log("Started Investor Income Phase");
 
                             //roll dices
-                            log(Main.getCompanies()+"");
                             for(Company c: Main.getCompanies()){
                                 c.rollDice();
                             }
-                            log(Main.getCompanies()+"");
+                            log("Rolled dices. New company results: "+Main.getCompanies());
 
                             // now send requests
                             phaseStartTime = currentTime;

@@ -121,6 +121,7 @@ public class ManagerBDI
 
                 Integer income = new Gson().fromJson(msg.getJsonExtra(), Integer.class);
                 currentMoney += income;
+                log("I currently have "+currentMoney);
         }
     }
 

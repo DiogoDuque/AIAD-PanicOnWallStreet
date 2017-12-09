@@ -196,6 +196,7 @@ public class InvestorBDI
                 Proposal proposal = new Proposal(share, proposalValue);
                 String proposalString = proposal.toJsonStr();
                 String manager = share.getOwnerCid();
+                log("Sending proposal to "+manager);
                 coms.sendProposal(name, manager, proposalString);
             }
         }
@@ -374,9 +375,8 @@ public class InvestorBDI
     private void parseNegotiationMessage(NegotiationMessage msg) {
         String myCid = agent.getComponentIdentifier().getLocalName();
         if(msg.getSenderCid().equals(myCid)) { //if msg was sent by me
-            //log("Received my message");
             return;
-        }// else log("Received "+msg.getMsgType()+" from "+msg.getSenderCid());
+        }
 
         switch (msg.getMsgType()){
             case ASK_INFO:
@@ -417,7 +417,6 @@ public class InvestorBDI
                 break;*/
 
             default:
-                //log(msg.toJsonStr());
                 break;
         }
     }
@@ -429,9 +428,8 @@ public class InvestorBDI
     private void parseInvestorIncomeMessage(IncomeMessage msg) {
         String myCid = agent.getComponentIdentifier().getLocalName();
         if(msg.getSenderCid().equals(myCid)) { //if msg was sent by me
-            //log("Received my message");
             return;
-        }// else log("Received "+msg.getMsgType()+" from "+msg.getSenderCid());
+        }
 
         switch (msg.getMsgType()){
             case ASK_INVESTOR_INFO:
@@ -441,7 +439,6 @@ public class InvestorBDI
                 for(Share s: boughtShares){
                     for(Company c: companies){
                         if(s.getCompanyName().equals(c.getName())){
-                            log("updated share");
                             s.updateCompany(c);
                         }
                     }
@@ -454,11 +451,10 @@ public class InvestorBDI
                     break;
                 Integer income = new Gson().fromJson(msg.getJsonExtra(),Integer.class);
                 currentMoney += income;
-                log("I now have "+currentMoney);
+                log("My final balance after the Income Phase is "+currentMoney);
                 break;
 
             default:
-                //log(msg.toJsonStr());
                 break;
         }
     }
