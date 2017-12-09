@@ -143,4 +143,28 @@ public interface IComsService {
      * Sent by timer to managers, indicating they should pay the costs of owning shares.
      */
     void payManagementCosts(String sender);
+
+    // AUCTION PHASE
+
+    /**
+     * Sent by timer. Announces a share to auction.
+     * @param sender sender's cid.
+     * @param share share being auctioned.
+     */
+    void auctionShare(String sender, String share);
+
+    /**
+     * Sent by managers. Represents an intention to buy a share for a certain price.
+     * @param sender sender's cid.
+     * @param proposal proposal for share being auctioned.
+     */
+    void bidOnShare(String sender, String proposal);
+
+    /**
+     * Sent by timer. States that share was sold to a specific manager.
+     * @param sender sender's cid.
+     * @param receiver share's owner cid.
+     * @param share share that was bought.
+     */
+    void shareSold(String sender, String receiver, String share);
 }

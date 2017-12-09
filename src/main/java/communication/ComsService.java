@@ -115,4 +115,19 @@ public class ComsService implements IComsService {
     public void payManagementCosts(String sender){
         broadcast(new IncomeMessage(sender, IncomeMessage.MessageType.ASK_MANAGEMENT_COSTS_PAYMENT).toJsonStr());
     }
+
+    @Override
+    public void auctionShare(String sender, String share) {
+        broadcast(new AuctionMessage(sender, AuctionMessage.MessageType.SHARE_AUCTION, share).toJsonStr());
+    }
+
+    @Override
+    public void bidOnShare(String sender, String proposal) {
+        broadcast(new AuctionMessage(sender, AuctionMessage.MessageType.BID_ON_SHARE, proposal).toJsonStr());
+    }
+
+    @Override
+    public void shareSold(String sender, String receiver, String share) {
+        broadcast(new AuctionMessage(sender, receiver, AuctionMessage.MessageType.SHARE_SOLD, share).toJsonStr());
+    }
 }
