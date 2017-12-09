@@ -1,7 +1,5 @@
 package assets;
 
-import communication.GameOverMessage;
-import javafx.util.Pair;
 import main.Main;
 
 public class GameOverManager {
@@ -19,7 +17,7 @@ public class GameOverManager {
 
     public static GameOverManager getInstance() {
         if(instance==null)
-            new GameOverManager();
+            instance = new GameOverManager();
 
         return instance;
     }

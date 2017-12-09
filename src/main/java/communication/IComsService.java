@@ -167,4 +167,19 @@ public interface IComsService {
      * @param share share that was bought.
      */
     void shareSold(String sender, String receiver, String share);
+
+    // GAMEOVER PHASE
+
+    /**
+     * Asks information to calculate winners.
+     * @param sender sender's cid.
+     */
+    void askGameOverInfo(String sender);
+
+    /**
+     * Sends information relevant to calculate winners of the game.
+     * @param sender sender's cid.
+     * @param money amount of money the sender has made.
+     */
+    void sendGameOverInfo(String sender, String money);
 }

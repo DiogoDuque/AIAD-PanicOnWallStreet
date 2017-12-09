@@ -130,4 +130,14 @@ public class ComsService implements IComsService {
     public void shareSold(String sender, String receiver, String share) {
         broadcast(new AuctionMessage(sender, receiver, AuctionMessage.MessageType.SHARE_SOLD, share).toJsonStr());
     }
+
+    @Override
+    public void askGameOverInfo(String sender) {
+        broadcast(new GameOverMessage(sender, GameOverMessage.MessageType.ASK_GAMEOVER_INFO).toJsonStr());
+    }
+
+    @Override
+    public void sendGameOverInfo(String sender, String money) {
+        broadcast(new GameOverMessage(sender, GameOverMessage.MessageType.SEND_GAMEOVER_INFO, money).toJsonStr());
+    }
 }

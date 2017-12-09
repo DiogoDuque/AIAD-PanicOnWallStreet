@@ -105,6 +105,12 @@ public class InvestorBDI
                         IncomeMessage miMsg = new Gson().fromJson(result, IncomeMessage.class);
                         parseManagerIncomeMessage(miMsg);
                         break;
+
+                    case GAMEOVER:
+                        GameOverMessage goMsg = new Gson().fromJson(result, GameOverMessage.class);
+                        if(goMsg.getMsgType().equals(GameOverMessage.MessageType.ASK_GAMEOVER_INFO))
+                            coms.sendGameOverInfo(myCid, currentMoney+"");
+                        break;
                 }
             }
         });
