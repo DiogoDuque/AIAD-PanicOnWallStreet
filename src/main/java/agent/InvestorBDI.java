@@ -362,10 +362,7 @@ public class InvestorBDI
     }
 
     @AgentBody
-	public void executeBody()
-	{
-        agentFeature.dispatchTopLevelGoal(new BeTheRichestInvestorGoal());
-	}
+	public void executeBody() {}
 
     /**
      * Called as a parser of messages in the Negotiation phase. Receives a message and deals with it the best way it can.
@@ -396,9 +393,10 @@ public class InvestorBDI
             case INVESTOR_INFO:
                 InvestorInfo investorInfo = new Gson().fromJson(msg.getJsonExtra(), InvestorInfo.class);
                 this.investorInfos.put(msg.getSenderCid(), investorInfo);
+                agentFeature.dispatchTopLevelGoal(new BeTheRichestInvestorGoal());
                 break;
 
-            /*case PROPOSAL_ACCEPTED:
+            case PROPOSAL_ACCEPTED:
                 if(!msg.getReceiverCid().equals(myCid)) //if proposal is not for me
                     break;
 
@@ -414,7 +412,7 @@ public class InvestorBDI
                 Proposal proposalR = new Gson().fromJson(msg.getJsonExtra(), Proposal.class);
                 proposedShares.remove(proposalR.getShare());
                 log("Proposal was denied");
-                break;*/
+                break;
 
             default:
                 //log(msg.toJsonStr());

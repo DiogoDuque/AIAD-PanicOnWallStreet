@@ -149,7 +149,7 @@ public class ManagerBDI
 
                 break;
 
-            /*case NEW_PROPOSAL:
+            case NEW_PROPOSAL:
                 if(!msg.getReceiverCid().equals(myCid)) //if proposal is not for me
                     break;
 
@@ -183,7 +183,7 @@ public class ManagerBDI
                     coms.rejectProposal(agent.getComponentIdentifier().getName(), msg.getSenderCid(), proposal.toJsonStr());
                 }
                 break;
-
+            /*
             case PROPOSAL_REJECTED:
                 if(!msg.getReceiverCid().equals(myCid)) //if proposal is not for me
                     break;
