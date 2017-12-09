@@ -26,6 +26,14 @@ public class AuctionMessage extends Message {
         this.jsonExtra = jsonExtra;
     }
 
+    public MessageType getMsgType() {
+        return msgType;
+    }
+
+    public String getJsonExtra() {
+        return jsonExtra;
+    }
+
     @Override
     public String toJsonStr() {
         return new Gson().toJson(this);
