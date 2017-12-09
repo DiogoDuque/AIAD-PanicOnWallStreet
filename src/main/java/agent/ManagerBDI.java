@@ -86,6 +86,13 @@ public class ManagerBDI
                         break;
 
                     case AUCTION:
+                        // todo
+                        break;
+
+                    case GAMEOVER:
+                        GameOverMessage goMsg = new Gson().fromJson(result, GameOverMessage.class);
+                        if(goMsg.getMsgType().equals(GameOverMessage.MessageType.ASK_GAMEOVER_INFO))
+                            coms.sendGameOverInfo(myCid, currentMoney+"");
                         break;
                 }
             }

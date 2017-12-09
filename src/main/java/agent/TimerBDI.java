@@ -2,12 +2,10 @@ package agent;
 
 import assets.AuctionManager;
 import assets.Company;
+import assets.GameOverManager;
 import assets.Share;
 import com.google.gson.Gson;
-import communication.AuctionMessage;
-import communication.IComsService;
-import communication.IncomeMessage;
-import communication.Proposal;
+import communication.*;
 import jadex.bdiv3.annotation.Belief;
 import jadex.bdiv3.annotation.Plan;
 import jadex.bdiv3.annotation.Trigger;
@@ -38,7 +36,9 @@ public class TimerBDI {
         INVESTOR_INCOME,
         MANAGER_INCOME,
         MANAGEMENT_COST_PAYMENT,
-        AUCTION
+        AUCTION,
+
+        GAMEOVER
     }
 
     @Agent
@@ -118,6 +118,14 @@ public class TimerBDI {
                             auctionManager.receivedBid(aMsg.getSenderCid(), proposal);
                             break;
                         }
+                        break;
+
+                    case GAMEOVER:
+                        GameOverMessage goMsg = new Gson().fromJson(result, GameOverMessage.class);
+                        if(goMsg.getMsgType().equals(GameOverMessage.MessageType.SEND_GAMEOVER_INFO)){
+                            GameOverManager.getInstance().addNewPlayer(goMsg.getSenderCid(), new Gson().fromJson(goMsg.getJsonExtra(), Integer.class));
+                        }
+                        break;
                 }
             }
         });
@@ -210,15 +218,16 @@ public class TimerBDI {
                         }
                     } else {
                         if(round >= Main.N_ROUNDS){
-                            // todo handle end of the game
-                            log("GAME FINISHED");
-                            return;
+                            gamePhase = GamePhase.GAMEOVER;
+                            log("Started GameOver Phase");
+                            coms.askGameOverInfo(myCid);
+                        } else {
+                            gamePhase = GamePhase.AUCTION;
+                            phaseStartTime = -1;
+                            timeAfterPhaseStart = -1;
+                            changePhase = true;
+                            log("Started AuctionManager Phase");
                         }
-                        gamePhase = GamePhase.AUCTION;
-                        phaseStartTime = -1;
-                        timeAfterPhaseStart = -1;
-                        changePhase = true;
-                        log("Started AuctionManager Phase");
                     }
                     break;
 
