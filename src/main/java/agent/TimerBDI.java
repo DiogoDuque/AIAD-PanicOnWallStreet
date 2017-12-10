@@ -209,7 +209,7 @@ public class TimerBDI {
 
                             // now send requests
                             phaseStartTime = currentTime;
-                            coms.askManagerForManagerIncomeCalculation(myCid, new Gson().toJson(Main.getCompanies().toArray(new Company[Main.getCompanies().size()])));
+                            coms.payManagementCosts(myCid);
                         }
                     } else {
                         if(round >= Main.N_ROUNDS){
