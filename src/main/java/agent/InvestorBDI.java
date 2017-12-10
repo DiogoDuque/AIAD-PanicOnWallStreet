@@ -220,7 +220,7 @@ public class InvestorBDI
 
         protected void sendProposals(ArrayList<Share> shares) {
             for (Share share : shares) {
-                int proposalValue = share.getHighestBidderValue() + 1;
+                int proposalValue = share.getHighestBidderValue() + 5;
                 Proposal proposal = new Proposal(share, proposalValue);
                 String proposalString = proposal.toJsonStr();
                 String manager = share.getOwnerCid();
@@ -262,6 +262,9 @@ public class InvestorBDI
         protected ArrayList<Share> pickShares(ArrayList<Share> allShares) {
             ArrayList<Share> shares = new ArrayList<>();
             double toSpendLimit = goal.getAdvantageToNext();
+            if (toSpendLimit < 0.5 * currentMoney) {
+                toSpendLimit = 0.5 * currentMoney;
+            }
             int availableShares = allShares.size();
             int currentShareIndex = 0;
 
@@ -400,6 +403,7 @@ public class InvestorBDI
                 break;
 
             case MANAGER_SHARES:
+                log(msg.getJsonExtra());
                 Share[] sharesArr = new Gson().fromJson(msg.getJsonExtra(), Share[].class);
                 ArrayList<Share> shares = new ArrayList<Share>(Arrays.asList(sharesArr));
                 this.managerInfos.put(msg.getSenderCid(), shares);
@@ -429,6 +433,10 @@ public class InvestorBDI
                     break;
 
                 Proposal proposalR = new Gson().fromJson(msg.getJsonExtra(), Proposal.class);
+                for (Share share : managerInfos.get(msg.getSenderCid())) {
+                    share.setHighestBidderValue(share.getHighestBidderValue() + 5);
+                }
+
                 proposedShares.remove(proposalR.getShare());
                 log("Proposal was denied");
                 break;
