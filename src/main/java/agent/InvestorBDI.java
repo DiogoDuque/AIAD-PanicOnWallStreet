@@ -444,6 +444,21 @@ public class InvestorBDI
                 log("Proposal was denied");
                 break;
 
+            case CLOSE_DEAL_ACCEPT:
+                if(!msg.getReceiverCid().equals(myCid)) //if proposal is not for me
+                    break;
+
+                Proposal dealA = new Gson().fromJson(msg.getJsonExtra(), Proposal.class);
+                for (Share share : proposedShares) {
+                    if (share.equals(dealA.getShare())) {
+                        boughtShares.add(share);
+                        proposedShares.remove(share);
+                    }
+                }
+
+                log("Close deal was accepted");
+                break;
+
             default:
                 break;
         }
