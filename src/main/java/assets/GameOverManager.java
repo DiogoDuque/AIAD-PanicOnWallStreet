@@ -23,21 +23,28 @@ public class GameOverManager {
     }
 
     public void addNewPlayer(String name, int value){
-        if(isInvestor(name) && value > bestInvestorValue){ // if best investor so far
-            bestInvestorValue = value;
-            bestInvestorName = name;
+        if(isInvestor(name)){ // if best investor so far
             numberOfInvestorsResponded++;
+            if(value > bestInvestorValue) {
+                bestInvestorValue = value;
+                bestInvestorName = name;
+            }
 
-        } else if(value > bestManagerValue) { // if best manager so far
-            bestManagerValue = value;
-            bestManagerName = name;
-            numberOfManagersResponded++;
+        } else {
+            if(value > bestManagerValue) { // if best manager so far
+                numberOfManagersResponded++;
+                bestManagerValue = value;
+                bestManagerName = name;
+            }
         }
 
+        System.out.println(numberOfManagersResponded+"/"+Main.N_MANAGERS+" managers responded and "+numberOfInvestorsResponded+"/"+Main.N_INVESTORS+" investors responded");
         if(numberOfManagersResponded == Main.N_MANAGERS && numberOfInvestorsResponded == Main.N_INVESTORS){
             System.out.println("Game has finished!");
             System.out.println("Best Manager was: "+bestManagerName+" with an amount of "+bestManagerValue);
             System.out.println("Best Investor was: "+bestInvestorName+" with an amount of "+bestInvestorValue);
+            System.out.println("Writing to file...");
+            GameInfo.getInstance().writeToFile();
             System.exit(0);
         }
     }
