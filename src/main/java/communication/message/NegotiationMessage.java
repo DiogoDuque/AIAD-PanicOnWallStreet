@@ -8,7 +8,7 @@ public class NegotiationMessage extends Message {
      * Message types for every possible Negotiation Message sent.
      */
     public enum NegotiationMessageType{
-        ASK_INFO, // called by timerAgent to ask every agent do broadcast its info
+        ASK_INFO, // used by timerAgent to ask every agent do broadcast its info
         MANAGER_SHARES, // sent by managers with all its available shares
         INVESTOR_INFO, // sent by investors with all their available info
 
