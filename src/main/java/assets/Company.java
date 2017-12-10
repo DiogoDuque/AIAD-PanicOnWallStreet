@@ -38,11 +38,35 @@ public class Company {
     }
 
     int maxValue(){
-        return values[currIndex] + this.diceValues[this.diceValues.length - 1];
+        int maxIndexValue;
+        int maxDiceValue = this.diceValues[diceValues.length - 1];
+
+        if(this.currIndex + maxDiceValue > this.values.length){
+            maxIndexValue = this.values.length - 1;
+        } else if (this.currIndex + maxDiceValue < 0){
+            maxIndexValue = 0;
+        }
+        else{
+            maxIndexValue = this.currIndex + maxDiceValue;
+        }
+
+        return  this.values[maxIndexValue];
     }
 
     int minValue(){
-        return values[currIndex] + this.diceValues[0];
+        int minIndexValue;
+        int minDiceValue = this.diceValues[0];
+
+        if(this.currIndex + minDiceValue > this.values.length){
+            minIndexValue = this.values.length - 1;
+        } else if (this.currIndex + minDiceValue < 0){
+            minIndexValue = 0;
+        }
+        else{
+            minIndexValue = this.currIndex + minDiceValue;
+        }
+
+        return  this.values[minIndexValue];
     }
 
     /**
@@ -50,20 +74,37 @@ public class Company {
      * @return average of the next value after dice roll.
      */
     float getAverageNextValue() {
-        int averageValue=0;
+        int averageValue = 0;
 
-        for(int diceVal: diceValues){
-            int index = currIndex+diceVal;
-            if(index<0)
+        for (int diceVal : diceValues) {
+            int index = currIndex + diceVal;
+
+            if (index < 0) {
                 index = 0;
-            else if(index >= values.length)
-                index = values.length-1;
+            } else if (index >= values.length) {
+                index = values.length - 1;
+            }
 
             averageValue += values[index];
         }
 
         return (float)(averageValue/6);
     }
+
+
+    public int risk() {
+        int riskLevel;
+        if (this.diceValues[0] == -1) {
+            riskLevel = 0;
+        } else if (this.diceValues[0] == -2) {
+            riskLevel = 1;
+        } else if (this.diceValues[0] == -3) {
+            riskLevel = 2;
+        } else riskLevel = 3;
+        return riskLevel;
+    }
+
+    ;
 
     /**
      * Rolls the dice for this company, making its value change.
