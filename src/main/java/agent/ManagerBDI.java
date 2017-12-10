@@ -179,8 +179,7 @@ public class ManagerBDI
                 }
 
                 log("Received new proposal for "+proposal.getShare());
-                Random r = new Random();
-                if(r.nextInt(2)==0){ //TODO better decision
+                if(proposal.getValue() > share.getHighestBidderValue()){ //TODO better decision
                     log("Accepting proposal");
                     share.setHighestBidder(msg.getSenderCid());
                     share.setHighestBidderValue(proposal.getValue());
