@@ -4,7 +4,6 @@ import assets.Share;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 
 public class InvestorInfo implements Comparable {
     /**
@@ -62,12 +61,12 @@ public class InvestorInfo implements Comparable {
 
         float boughtSharesValue = 0;
         for(Share s: boughtShares){
-            boughtSharesValue += s.getShareAverageValue();
+            boughtSharesValue += s.getShareAverageNextValue();
         }
 
         float proposedSharesValue = 0;
         for(Share s: proposedShares){
-            proposedSharesValue += s.getShareAverageValue();
+            proposedSharesValue += s.getShareAverageNextValue();
         }
 
         return money*1.1f + boughtSharesValue + proposedSharesValue*0.4f;

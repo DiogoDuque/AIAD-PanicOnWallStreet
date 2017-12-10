@@ -21,9 +21,12 @@ public class Main {
     public static final int N_INVESTORS = 2; // number of investors in the game
     public static final int N_MANAGERS = 1; // number of managers in the game
     public static final int N_ROUNDS = 3; // number of rounds the game will have
-    public static final int MANAGEMENT_COST_PER_SHARE = 10000; // cost a manager needs to pay per share on the Management Costs phase
+    public static final int MANAGEMENT_COST_PER_SHARE = 10; // cost a manager needs to pay per share on the Management Costs phase
 
     public static final int INFO_REFRESH_RATE = 500; // in milis // 0.5s
+    public static final int SHARES_ADDED_PER_ROUND = (2*N_MANAGERS) - 1;
+
+
     public static final int NEGOTIATION_PHASE_DURATION = 10000; // in milis // 10s
     public static final int INVESTOR_INCOME_PHASE_DURATION = 2000; // in milis // 2s
     public static final int MANAGER_INCOME_PHASE_DURATION = 2000; // in milis // 2s
@@ -35,18 +38,18 @@ public class Main {
 	public static void main(String[] args)
 	{
 	    companies = new ArrayList<>();
-	    companies.add(new Company("Weenie Tube",
-                                new int[]{-20, -10, 0, 30, 40, 50, 60, 190},
-                                new int[]{-7, -3, -2, 2, 3, 7}));
+        companies.add(new Company("Weenie Tube",
+                new int[]{-20, -10, 0, 30, 40, 50, 60, 70},
+                new int[]{-7, -3, -2, 2, 3, 7}));
         companies.add(new Company("Beach Kit",
-                                new int[]{-10, 0, 0, 30, 40, 40, 60, 90},
-                                new int[]{-3, -2, -1, 1, 2, 3}));
+                new int[]{-10, 0, 0, 30, 40, 40, 60, 60},
+                new int[]{-3, -2, -1, 1, 2, 3}));
         companies.add(new Company("Antisnore Pillow",
-                                new int[]{0, 10, 20, 30, 30, 40, 50, 50},
-                                new int[]{-2, -1, 0, 0, 1, 2}));
+                new int[]{0, 10, 20, 30, 30, 40, 50, 60},
+                new int[]{-2, -1, 0, 0, 1, 2}));
         companies.add(new Company("Hamster Radio",
-                                new int[]{20, 20, 20, 30, 300, 30, 40, 50},
-                                new int[]{-1, -1, 0, 0, 1, 1}));
+                new int[]{20, 20, 20, 30, 30, 30, 40, 40},
+                new int[]{-1, -1, 0, 0, 1, 1}));
 
 		IFuture<IExternalAccess> fut = Starter.createPlatform();
 		PlatformConfiguration platformConfig = PlatformConfiguration.getDefaultNoGui(); //init configs with a default

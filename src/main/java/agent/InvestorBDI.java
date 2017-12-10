@@ -250,8 +250,8 @@ public class InvestorBDI
 
             // Sorts based on ShareAverageValue, MinPossibleValue and HighestBidderValue
             Collections.sort(allShares, (share1, share2) -> {
-                double share1Value = share1.getShareAverageValue()*0.8 + share1.getMinPossibleValue()*0.2 - share1.getHighestBidderValue();
-                double share2Value = share2.getShareAverageValue()*0.8 + share2.getMinPossibleValue()*0.2 - share2.getHighestBidderValue();
+                double share1Value = share1.getShareAverageNextValue()*0.8 + share1.getMinPossibleValue()*0.2 - share1.getHighestBidderValue();
+                double share2Value = share2.getShareAverageNextValue()*0.8 + share2.getMinPossibleValue()*0.2 - share2.getHighestBidderValue();
                 return Double.compare(share2Value, share1Value);
             });
 
@@ -267,7 +267,7 @@ public class InvestorBDI
             while (toSpendLimit > 0 && availableShares > 0) {
                 Share currentShare = allShares.get(currentShareIndex);
                 if (toSpendLimit > currentShare.getHighestBidderValue() &&
-                        currentShare.getShareAverageValue() > currentShare.getHighestBidderValue()) {
+                        currentShare.getShareAverageNextValue() > currentShare.getHighestBidderValue()) {
                     shares.add(currentShare);
                     toSpendLimit -= currentShare.getHighestBidderValue();
                     availableShares--;
@@ -298,8 +298,8 @@ public class InvestorBDI
 
             // Sorts based on ShareAverageValue and HighestBidderValue
             Collections.sort(allShares, (share1, share2) -> {
-                double share1Value = share1.getShareAverageValue() - share1.getHighestBidderValue();
-                double share2Value = share2.getShareAverageValue() - share2.getHighestBidderValue();
+                double share1Value = share1.getShareAverageNextValue() - share1.getHighestBidderValue();
+                double share2Value = share2.getShareAverageNextValue() - share2.getHighestBidderValue();
                 return Double.compare(share2Value, share1Value);
             });
 
@@ -316,7 +316,7 @@ public class InvestorBDI
             while (money > 0 && availableShares > 0) {
                 Share currentShare = allShares.get(currentShareIndex);
                 if (money > currentShare.getHighestBidderValue() &&
-                        currentShare.getShareAverageValue() > currentShare.getHighestBidderValue()) {
+                        currentShare.getShareAverageNextValue() > currentShare.getHighestBidderValue()) {
                     shares.add(currentShare);
                     money -= currentShare.getHighestBidderValue();
                     availableShares--;
@@ -347,8 +347,8 @@ public class InvestorBDI
 
             // Sorts based on ShareAverageValue, MaxPossibleValue and HighestBidderValue
             Collections.sort(allShares, (share1, share2) -> {
-                double share1Value = share1.getShareAverageValue()*0.8 + share1.getMaxPossibleValue()*0.2 - share1.getHighestBidderValue();
-                double share2Value = share2.getShareAverageValue()*0.8 + share2.getMaxPossibleValue()*0.2 - share2.getHighestBidderValue();
+                double share1Value = share1.getShareAverageNextValue()*0.8 + share1.getMaxPossibleValue()*0.2 - share1.getHighestBidderValue();
+                double share2Value = share2.getShareAverageNextValue()*0.8 + share2.getMaxPossibleValue()*0.2 - share2.getHighestBidderValue();
                 return Double.compare(share2Value, share1Value);
             });
 
