@@ -9,6 +9,11 @@ import communication.message.AuctionMessage;
 import communication.message.GameOverMessage;
 import communication.message.IncomeMessage;
 import communication.message.NegotiationMessage;
+import jadex.bdiv3.annotation.Goal;
+import jadex.bdiv3.annotation.Plan;
+import jadex.bdiv3.annotation.PlanBody;
+import jadex.bdiv3.features.IBDIAgentFeature;
+import jadex.bdiv3.runtime.IPlan;
 import jadex.bridge.IInternalAccess;
 import jadex.bridge.service.RequiredServiceInfo;
 import jadex.bridge.service.component.IRequiredServicesFeature;
@@ -35,6 +40,9 @@ public class ManagerBDI
 
     @AgentFeature
     private IRequiredServicesFeature reqServ;
+
+    @AgentFeature
+    protected IBDIAgentFeature agentFeature;
 
     /**
      * Communication service.
@@ -112,67 +120,122 @@ public class ManagerBDI
         });
     }
 
+    @Goal
+    public class WinShareAuctionGoal {
+        public Share auctionedShare;
+
+        public String myCid;
+
+        public WinShareAuctionGoal(Share auctionedShare) {
+            this.auctionedShare = auctionedShare;
+            this.myCid = agent.getComponentIdentifier().getLocalName();
+
+            int sharesAvailableAtAuctionEnd = 4*Main.N_MANAGERS + TimerBDI.getRound()*(Main.SHARES_ADDED_PER_ROUND);
+            int mySharesCount = ownedShares.size();
+            int sharesRatio = mySharesCount/sharesAvailableAtAuctionEnd;
+
+            if(sharesRatio > (1/Main.N_MANAGERS)) // if has above average number of shares
+                agentFeature.adoptPlan(new ConservativePlan(this)); //be conservative
+            else if(mySharesCount < (sharesAvailableAtAuctionEnd/Main.N_MANAGERS)-Main.SHARES_ADDED_PER_ROUND) // if has number of shares too below average
+                agentFeature.adoptPlan(new RiskyPlan(this));//be risky
+            else
+                agentFeature.adoptPlan(new RegularPlan(this)); //be regular
+        }
+    }
+
+    @Plan
+    public class ConservativePlan {
+        protected WinShareAuctionGoal goal;
+
+        public ConservativePlan(WinShareAuctionGoal goal) {
+            this.goal = goal;
+        }
+
+        @PlanBody
+        public void bid(final IPlan plan) {
+            log("Starting conservative plan");
+            int nextPossibleBid = goal.auctionedShare.getHighestBidderValue() + 10;
+            int futureMoney = currentMoney - nextPossibleBid;
+
+            if (futureMoney/moneyAtBeginningOfAuction < 1/2 || currentMoney<0) { // keep at least 1/2 of money overall // spends less overall money
+                log("Aborting plan. I don't want to spend more money at this auction.");
+                return;
+            }
+            if (nextPossibleBid/moneyAtBeginningOfAuction > 1/3) { // do not spend more that 1/3 of money on a single share
+                log("Aborting plan. I don't want to spend more money on this share.");
+                return;
+            }
+
+            if (goal.auctionedShare.getShareAverageNextValue() > 20){ // only bids if shareAverageNextValue>20
+                log("Bidding");
+                coms.bidOnShare(goal.myCid, new Proposal(goal.auctionedShare, nextPossibleBid).toJsonStr());
+            } else log("Aborting plan. Share does not seem good enough.");
+        }
+    }
+
+    @Plan
+    public class RegularPlan {
+        protected WinShareAuctionGoal goal;
+
+        public RegularPlan(WinShareAuctionGoal goal) {
+            this.goal = goal;
+        }
+
+        @PlanBody
+        public void bid(final IPlan plan) {
+            log("Starting regular plan");
+            int nextPossibleBid = goal.auctionedShare.getHighestBidderValue()+10;
+            int futureMoney = currentMoney - nextPossibleBid;
+
+            if (futureMoney/moneyAtBeginningOfAuction < 1/3 || currentMoney<0) { // keep at least 1/3 of money overall
+                log("Aborting plan. I don't want to spend more money at this auction.");
+                return;
+            }
+            if(nextPossibleBid/moneyAtBeginningOfAuction > 1/4) {// do not spend more that 1/4 of money on a single share
+                log("Aborting plan. I don't want to spend more money on this share.");
+                return;
+            }
+            if(goal.auctionedShare.getShareAverageNextValue() > 10){ // only bids if shareAverageNextValue>10
+                log("Bidding");
+                coms.bidOnShare(goal.myCid, new Proposal(goal.auctionedShare, nextPossibleBid).toJsonStr());
+            } else log("Aborting plan. Share does not seem good enough.");
+        }
+    }
+
+    @Plan
+    public class RiskyPlan {
+        protected WinShareAuctionGoal goal;
+
+        public RiskyPlan(WinShareAuctionGoal goal) {
+            this.goal = goal;
+        }
+
+        @PlanBody
+        public void bid(final IPlan plan) {
+            log("Starting risky plan");
+            int nextPossibleBid = goal.auctionedShare.getHighestBidderValue()+10;
+            int futureMoney = currentMoney - nextPossibleBid;
+
+            if (futureMoney/moneyAtBeginningOfAuction < 1/3 || currentMoney<0) { // keep at least 1/3 of money overall
+                log("Aborting plan. I don't want to spend more money at this auction.");
+                return;
+            }
+            if (nextPossibleBid/moneyAtBeginningOfAuction > 1/3) { // do not spend more that 1/3 of money on a single share
+                log("Aborting plan. I don't want to spend more money on this share.");
+                return;
+            }
+            if(goal.auctionedShare.getShareAverageNextValue() > 10) {//only bids if shareAverageNextValue>10
+                log("Bidding");
+                coms.bidOnShare(goal.myCid, new Proposal(goal.auctionedShare, nextPossibleBid).toJsonStr());
+            } else log("Aborting plan. Share does not seem good enough.");
+        }
+    }
+
+
     private void parseAuctionMessage(AuctionMessage msg) {
         String myCid = agent.getComponentIdentifier().getLocalName();
-        class Plan{
-            private void conservativePlan(Share share) {
-                log("Starting conservative plan");
-                int nextPossibleBid = share.getHighestBidderValue() + 10;
-                int futureMoney = currentMoney - nextPossibleBid;
 
-                if (futureMoney/moneyAtBeginningOfAuction < 1/2 || currentMoney<0) { // keep at least 1/2 of money overall // spends less overall money
-                    log("Aborting plan. I don't want to spend more money at this auction.");
-                    return;
-                }
-                if (nextPossibleBid/moneyAtBeginningOfAuction > 1/3) { // do not spend more that 1/3 of money on a single share
-                    log("Aborting plan. I don't want to spend more money on this share.");
-                    return;
-                }
 
-                if (share.getShareAverageNextValue() > 20){ // only bids if shareAverageNextValue>20
-                    log("Bidding");
-                    coms.bidOnShare(myCid, new Proposal(share, nextPossibleBid).toJsonStr());
-                } else log("Aborting plan. Share does not seem good enough.");
-            }
-
-            private void regularPlan(Share share){
-                log("Starting regular plan");
-                int nextPossibleBid = share.getHighestBidderValue()+10;
-                int futureMoney = currentMoney - nextPossibleBid;
-
-                if (futureMoney/moneyAtBeginningOfAuction < 1/3 || currentMoney<0) { // keep at least 1/3 of money overall
-                    log("Aborting plan. I don't want to spend more money at this auction.");
-                    return;
-                }
-                if(nextPossibleBid/moneyAtBeginningOfAuction > 1/4) {// do not spend more that 1/4 of money on a single share
-                    log("Aborting plan. I don't want to spend more money on this share.");
-                    return;
-                }
-                if(share.getShareAverageNextValue() > 10){ // only bids if shareAverageNextValue>10
-                    log("Bidding");
-                    coms.bidOnShare(myCid, new Proposal(share, nextPossibleBid).toJsonStr());
-                } else log("Aborting plan. Share does not seem good enough.");
-            }
-
-            private void riskyPlan(Share share){
-                log("Starting risky plan");
-                int nextPossibleBid = share.getHighestBidderValue()+10;
-                int futureMoney = currentMoney - nextPossibleBid;
-
-                if (futureMoney/moneyAtBeginningOfAuction < 1/3 || currentMoney<0) { // keep at least 1/3 of money overall
-                    log("Aborting plan. I don't want to spend more money at this auction.");
-                    return;
-                }
-                if (nextPossibleBid/moneyAtBeginningOfAuction > 1/3) { // do not spend more that 1/3 of money on a single share
-                    log("Aborting plan. I don't want to spend more money on this share.");
-                    return;
-                }
-                if(share.getShareAverageNextValue() > 10) {//only bids if shareAverageNextValue>10
-                    log("Bidding");
-                    coms.bidOnShare(myCid, new Proposal(share, nextPossibleBid).toJsonStr());
-                } else log("Aborting plan. Share does not seem good enough.");
-            }
-        }
 
         switch (msg.getMsgType()){
             case SHARE_SOLD:
@@ -188,16 +251,9 @@ public class ManagerBDI
 
             case SHARE_AUCTION:
                 Share share = new Gson().fromJson(msg.getJsonExtra(), Share.class);
-                int sharesAvailableAtAuctionEnd = 4*Main.N_MANAGERS + TimerBDI.getRound()*(Main.SHARES_ADDED_PER_ROUND);
-                int mySharesCount = ownedShares.size();
-                int sharesRatio = mySharesCount/sharesAvailableAtAuctionEnd;
+                agentFeature.getGoals().forEach((goal) -> goal.drop());
+                agentFeature.dispatchTopLevelGoal(new WinShareAuctionGoal(share));
 
-                if(sharesRatio > (1/Main.N_MANAGERS)) // if has above average number of shares
-                    new Plan().conservativePlan(share);//be conservative
-                else if(mySharesCount < (sharesAvailableAtAuctionEnd/Main.N_MANAGERS)-Main.SHARES_ADDED_PER_ROUND) // if has number of shares too below average
-                    new Plan().riskyPlan(share); //be risky
-                else new Plan().regularPlan(share); //be regular
-                break;
         }
     }
 

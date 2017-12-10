@@ -185,7 +185,6 @@ public class InvestorBDI
         public BeTheRichestInvestorGoal() {
             this.currentInvestorsInfo = new ArrayList<>(InvestorBDI.this.investorInfos.values());
 
-
             // Sorts based on evaluation, see InvestorInfo.compareTo() method
             Collections.sort(this.currentInvestorsInfo);
 
