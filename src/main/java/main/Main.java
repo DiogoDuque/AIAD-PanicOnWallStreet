@@ -28,6 +28,7 @@ public class Main {
     public static final int INVESTOR_INCOME_PHASE_DURATION = 2000; // in milis // 2s
     public static final int MANAGER_INCOME_PHASE_DURATION = 2000; // in milis // 2s
     public static final int MANAGEMENT_COSTS_PHASE_DURATION = 1000; // in milis // 1s
+    public static final int AUCTION_DURATION = 1500; // in milis // 1.5s
 
     private static ArrayList<Company> companies;
 

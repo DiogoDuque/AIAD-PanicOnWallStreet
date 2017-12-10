@@ -1,10 +1,11 @@
 package agent;
 
+import assets.AuctionManager;
 import assets.Company;
+import assets.GameOverManager;
 import assets.Share;
 import com.google.gson.Gson;
-import communication.IComsService;
-import communication.IncomeMessage;
+import communication.*;
 import jadex.bdiv3.annotation.Belief;
 import jadex.bdiv3.annotation.Plan;
 import jadex.bdiv3.annotation.Trigger;
@@ -19,6 +20,7 @@ import main.Main;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
 
 @RequiredServices({
         @RequiredService(name="coms", type=IComsService.class, multiple=true, binding=@Binding(scope=RequiredServiceInfo.SCOPE_PLATFORM))
@@ -34,7 +36,9 @@ public class TimerBDI {
         INVESTOR_INCOME,
         MANAGER_INCOME,
         MANAGEMENT_COST_PAYMENT,
-        AUCTION
+        AUCTION,
+
+        GAMEOVER
     }
 
     @Agent
@@ -60,12 +64,23 @@ public class TimerBDI {
     private IComsService coms;
 
     /**
+     * Current round of the game.
+     */
+    private int round;
+
+    /**
      * Current Game Phase.
      */
     private static GamePhase gamePhase;
 
+    /**
+     * Used to handle the auctionManager phase.
+     */
+    private AuctionManager auctionManager;
+
     @AgentCreated
     public void init() {
+        round = 1;
         String myCid = agent.getComponentIdentifier().getName();
         this.coms = (IComsService)reqServ.getRequiredService("coms").get();
         IComsService iComs = SServiceProvider.getService(agent,IComsService.class, RequiredServiceInfo.SCOPE_PLATFORM).get();
@@ -90,6 +105,27 @@ public class TimerBDI {
                         }
                         coms.sendInvestorIncomeCalculationResult(myCid, invIncMsg.getSenderCid(), new Gson().toJson(new Integer(invIncome)));
                         break;
+
+                    case AUCTION:
+                        AuctionMessage aMsg = new Gson().fromJson(result, AuctionMessage.class);
+                        if(aMsg.getMsgType() == AuctionMessage.MessageType.BID_ON_SHARE) {
+                            AuctionManager auctionManager = AuctionManager.getInstance();
+                            if(auctionManager == null){
+                                log("WARNING: AuctionManager not found");
+                                break;
+                            }
+                            Proposal proposal = new Gson().fromJson(aMsg.getJsonExtra(), Proposal.class);
+                            auctionManager.receivedBid(aMsg.getSenderCid(), proposal);
+                            break;
+                        }
+                        break;
+
+                    case GAMEOVER:
+                        GameOverMessage goMsg = new Gson().fromJson(result, GameOverMessage.class);
+                        if(goMsg.getMsgType().equals(GameOverMessage.MessageType.SEND_GAMEOVER_INFO)){
+                            GameOverManager.getInstance().addNewPlayer(goMsg.getSenderCid(), new Gson().fromJson(goMsg.getJsonExtra(), Integer.class));
+                        }
+                        break;
                 }
             }
         });
@@ -107,10 +143,12 @@ public class TimerBDI {
      */
     @Plan(trigger = @Trigger(factchangeds ="currentTime"))
     protected void timedCall(){
-        if(phaseStartTime ==-1)
-            phaseStartTime =currentTime;
+        if(phaseStartTime == -1) {
+            log("Started Negotiation Phase");
+            phaseStartTime = currentTime;
+        }
 
-        long timeAfterPhaseStart = currentTime- phaseStartTime;
+        long timeAfterPhaseStart = currentTime - phaseStartTime;
         String myCid = agent.getComponentIdentifier().getName();
 
         boolean changePhase = false;
@@ -135,11 +173,10 @@ public class TimerBDI {
                             log("Started Investor Income Phase");
 
                             //roll dices
-                            log(Main.getCompanies()+"");
                             for(Company c: Main.getCompanies()){
                                 c.rollDice();
                             }
-                            log(Main.getCompanies()+"");
+                            log("Rolled dices. New company results: "+Main.getCompanies());
 
                             // now send requests
                             phaseStartTime = currentTime;
@@ -180,16 +217,46 @@ public class TimerBDI {
                             coms.askManagerForManagerIncomeCalculation(myCid, new Gson().toJson(Main.getCompanies().toArray(new Company[Main.getCompanies().size()])));
                         }
                     } else {
-                        gamePhase = GamePhase.AUCTION;
-                        phaseStartTime = -1;
-                        timeAfterPhaseStart = -1;
-                        changePhase = true;
-                        log("Started Auction Phase");
+                        if(round >= Main.N_ROUNDS){
+                            gamePhase = GamePhase.GAMEOVER;
+                            log("Started GameOver Phase");
+                            coms.askGameOverInfo(myCid);
+                        } else {
+                            gamePhase = GamePhase.AUCTION;
+                            phaseStartTime = -1;
+                            timeAfterPhaseStart = -1;
+                            changePhase = true;
+                            log("Started AuctionManager Phase");
+                        }
                     }
                     break;
 
                 case AUCTION:
-                    // todo start auction. the auction does not have a timeout. instead, it will have a state machine, which will also determine when to pass to the next phase
+                    // the auctionManager is different from the other phases, as it does not have a timeout.
+                    // Instead, it will have a "kind-of state machine",
+                    // which will also determine when to pass to the next phase.
+                    if(phaseStartTime == -1){ // executed only once
+                        Random r = new Random();
+                        ArrayList<Company> companies = Main.getCompanies();
+                        ArrayList<Share> shares = new ArrayList<>();
+                        for(int i = 0; i < 2*Main.N_MANAGERS-1; i++){
+                            Share share = new Share(companies.get(r.nextInt(companies.size())), myCid);
+                            shares.add(share);
+                        }
+                        AuctionManager.instantiate(myCid, coms, shares);
+                        phaseStartTime = 0;
+
+                    } else { // executed periodically
+                        AuctionManager auctionManager = AuctionManager.getInstance();
+                        if(auctionManager != null)
+                            auctionManager.receivedTime(currentTime);
+                        else { // if round finished
+                            round++;
+                            phaseStartTime = -1;
+                            gamePhase = GamePhase.NEGOTIATION;
+                        }
+                    }
+
                     break;
             }
         } while(changePhase); // will loop if change phase
