@@ -301,7 +301,7 @@ public class ManagerBDI
                 Proposal closeProposal = new Gson().fromJson(msg.getJsonExtra(), Proposal.class);
                 Share closeShare = null;
                 for(Share s: ownedShares){
-                    if(closeProposal.getShare().equals(s)){
+                    if(s.equals(closeProposal.getShare())){
                         closeShare = s;
                         break;
                     }

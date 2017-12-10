@@ -22,6 +22,7 @@ import jadex.micro.annotation.*;
 import main.Main;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @RequiredServices({
         @RequiredService(name="coms", type=IComsService.class, multiple=true, binding=@Binding(scope=RequiredServiceInfo.SCOPE_PLATFORM))
@@ -59,12 +60,12 @@ public class InvestorBDI
     /**
      * Shares acquired from a manager.
      */
-    private ArrayList<Share> boughtShares;
+    private CopyOnWriteArrayList<Share> boughtShares;
 
     /**
      * Shares whose proposals have been accepted by managers. However, they can be rejected at any time, so this is a very volatile list.
      */
-    private ArrayList<Share> proposedShares;
+    private CopyOnWriteArrayList<Share> proposedShares;
 
     /**
      * Hashmap containing regularly updated info on the other investors. Info can be retrieved with the agent's name as key.
@@ -81,8 +82,8 @@ public class InvestorBDI
         name = agent.getComponentIdentifier().getLocalName();
 
         currentMoney = Main.STARTING_MONEY;
-        boughtShares = new ArrayList<>();
-        proposedShares = new ArrayList<>();
+        boughtShares = new CopyOnWriteArrayList<>();
+        proposedShares = new CopyOnWriteArrayList<>();
 
         investorInfos = new HashMap<>();
         managerInfos = new HashMap<>();
@@ -399,7 +400,7 @@ public class InvestorBDI
         switch (msg.getMsgType()){
             case ASK_INFO:
                 GameInfo.getInstance().setInfos(TimerBDI.getRound(), myCid, currentMoney);
-                InvestorInfo info = new InvestorInfo(name, currentMoney, boughtShares, proposedShares);
+                InvestorInfo info = new InvestorInfo(name, currentMoney, new ArrayList<Share>(boughtShares), new ArrayList<Share>(proposedShares));
                 this.investorInfos.put(name, info);
                 coms.sendInvestorInfo(myCid, info.toJsonStr());
                 break;
@@ -445,7 +446,7 @@ public class InvestorBDI
                 break;
 
             case CLOSE_DEAL_ACCEPT:
-                if(!msg.getReceiverCid().equals(myCid)) //if proposal is not for me
+                if(!myCid.equals(msg.getReceiverCid())) //if proposal is not for me
                     break;
 
                 Proposal dealA = new Gson().fromJson(msg.getJsonExtra(), Proposal.class);

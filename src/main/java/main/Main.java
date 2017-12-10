@@ -11,7 +11,6 @@ import jadex.commons.future.IFuture;
 import jadex.commons.future.ITuple2Future;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class Main {
