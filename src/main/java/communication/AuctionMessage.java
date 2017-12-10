@@ -7,6 +7,7 @@ public class AuctionMessage extends Message {
     public enum MessageType{
         SHARE_AUCTION,
         BID_ON_SHARE,
+        BID_REJECTED,
         SHARE_SOLD
     }
 

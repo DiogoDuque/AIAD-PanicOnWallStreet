@@ -41,13 +41,16 @@ public class AuctionManager {
         Share share = shares.get(0);
         if(!proposal.getShare().getCompanyName().equals(share.getCompanyName())) {
             log("outdated proposal received");
+            coms.rejectBid(myCid,sender,share.toJsonStr());
             return;
         }
 
         if(proposal.getValue() > share.getHighestBidderValue()){
             log("new bid successfully placed");
+            String oldHighestBidder = share.getHighestBidder();
             share.setHighestBidderValue(proposal.getValue());
             share.setHighestBidder(sender);
+            coms.rejectBid(myCid, oldHighestBidder, share.toJsonStr());
         }
         lastBidTime = System.currentTimeMillis();
     }

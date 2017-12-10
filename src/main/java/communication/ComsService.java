@@ -127,6 +127,11 @@ public class ComsService implements IComsService {
     }
 
     @Override
+    public void rejectBid(String sender, String receiver, String share){
+        broadcast(new AuctionMessage(sender, receiver, AuctionMessage.MessageType.BID_REJECTED, share).toJsonStr());
+    }
+
+    @Override
     public void shareSold(String sender, String receiver, String share) {
         broadcast(new AuctionMessage(sender, receiver, AuctionMessage.MessageType.SHARE_SOLD, share).toJsonStr());
     }

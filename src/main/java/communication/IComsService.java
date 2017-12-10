@@ -161,6 +161,14 @@ public interface IComsService {
     void bidOnShare(String sender, String proposal);
 
     /**
+     * Sent by timer. Notifies the manager that his bid was rejected.
+     * @param sender sender's cid.
+     * @param receiver receiver's cid.
+     * @param share rejected share.
+     */
+    void rejectBid(String sender, String receiver, String share);
+
+    /**
      * Sent by timer. States that share was sold to a specific manager.
      * @param sender sender's cid.
      * @param receiver share's owner cid.
