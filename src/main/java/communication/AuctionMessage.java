@@ -4,6 +4,9 @@ import com.google.gson.Gson;
 
 public class AuctionMessage extends Message {
 
+    /**
+     * Message types for every possible Auction Message sent.
+     */
     public enum MessageType{
         SHARE_AUCTION,
         BID_ON_SHARE,
@@ -11,6 +14,9 @@ public class AuctionMessage extends Message {
         SHARE_SOLD
     }
 
+    /**
+     * Message type. this is also important for interpreting the jsonExtra.
+     */
     private MessageType msgType;
 
     private final String jsonExtra;

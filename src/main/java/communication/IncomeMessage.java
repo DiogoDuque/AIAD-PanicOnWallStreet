@@ -5,7 +5,7 @@ import com.google.gson.Gson;
 public class IncomeMessage extends Message {
 
     /**
-     * Message types for every possible (Manager or Investor) Income Message sent.
+     * Message types for every possible Income Message sent.
      */
     public enum MessageType {
         ASK_INVESTOR_INFO,

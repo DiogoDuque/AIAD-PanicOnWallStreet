@@ -4,11 +4,17 @@ import com.google.gson.Gson;
 
 public class GameOverMessage extends Message {
 
+    /**
+     * Message types for every possible GameOver Message sent.
+     */
     public enum MessageType {
         ASK_GAMEOVER_INFO,
         SEND_GAMEOVER_INFO
     }
 
+    /**
+     * Message type. this is also important for interpreting the jsonExtra.
+     */
     private MessageType msgType;
 
     private String jsonExtra;
