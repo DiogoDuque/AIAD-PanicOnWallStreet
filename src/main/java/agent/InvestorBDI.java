@@ -269,12 +269,11 @@ public class InvestorBDI
                 toSpendLimit = 0.5 * currentMoney;
             }
             int availableShares = allShares.size();
-            int currentShareIndex = 0;
 
-            while (toSpendLimit > 0 && availableShares > 0) {
+            for (int currentShareIndex = 0; toSpendLimit > 0 && availableShares > 0; currentShareIndex++) {
                 Share currentShare = allShares.get(currentShareIndex);
-                if (toSpendLimit > (currentShare.getHighestBidderValue() + 10) &&
-                        currentShare.getShareAverageNextValue() > (currentShare.getHighestBidderValue() + 10)) {
+                if (toSpendLimit > (currentShare.getHighestBidderValue() + 5) &&
+                        currentShare.getShareAverageNextValue() > (currentShare.getHighestBidderValue() + 5)) {
                     shares.add(currentShare);
                     toSpendLimit -= currentShare.getHighestBidderValue();
                     availableShares--;
@@ -322,7 +321,7 @@ public class InvestorBDI
 
             while (money > 0 && availableShares > 0) {
                 Share currentShare = allShares.get(currentShareIndex);
-                if (money > (currentShare.getHighestBidderValue() + 10) &&
+                if (money > (currentShare.getHighestBidderValue() + 5) &&
                         currentShare.getShareAverageNextValue() > (currentShare.getHighestBidderValue() + 5)) {
                     shares.add(currentShare);
                     money -= currentShare.getHighestBidderValue();
@@ -330,8 +329,6 @@ public class InvestorBDI
                 }
                 currentShareIndex++;
             }
-
-            log("NUMBER OF SHARES :" + shares.size() + " vs. " + allShares.size());
 
             return shares;
         }
@@ -368,18 +365,14 @@ public class InvestorBDI
         protected ArrayList<Share> pickShares(ArrayList<Share> allShares) {
             ArrayList<Share> shares = new ArrayList<>();
 
-            float earningsGoal = goal.getDifferenceToRichest();
             int money = currentMoney;
             int availableShares = allShares.size();
 
-            int currentShareIndex = 0;
-
-            while (earningsGoal > 0 && money > 0 && availableShares > 0) {
+            for (int currentShareIndex = 0; money > 0 && availableShares > 0; currentShareIndex++) {
                 Share currentShare = allShares.get(currentShareIndex);
-                if (money > currentShare.getHighestBidderValue()) {
+                if (money > (currentShare.getHighestBidderValue() + 5)) {
                     shares.add(currentShare);
                     money -= currentShare.getHighestBidderValue();
-                    earningsGoal -= currentShare.getHighestBidderValue();
                     availableShares--;
                 }
             }
@@ -412,7 +405,6 @@ public class InvestorBDI
                 break;
 
             case MANAGER_SHARES:
-                log(msg.getJsonExtra());
                 Share[] sharesArr = new Gson().fromJson(msg.getJsonExtra(), Share[].class);
                 ArrayList<Share> shares = new ArrayList<Share>(Arrays.asList(sharesArr));
                 this.managerInfos.put(msg.getSenderCid(), shares);
@@ -424,11 +416,8 @@ public class InvestorBDI
             case INVESTOR_INFO:
                 InvestorInfo investorInfo = new Gson().fromJson(msg.getJsonExtra(), InvestorInfo.class);
                 this.investorInfos.put(msg.getSenderCid(), investorInfo);
-                log(Integer.toString(agentFeature.getGoals().size()));
                 agentFeature.getGoals().forEach((goal) -> goal.drop());
-                log(Integer.toString(agentFeature.getGoals().size()));
                 agentFeature.dispatchTopLevelGoal(new BeTheRichestInvestorGoal());
-                log(Integer.toString(agentFeature.getGoals().size()));
                 break;
 
             case PROPOSAL_ACCEPTED:
