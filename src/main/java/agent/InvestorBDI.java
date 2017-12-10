@@ -223,11 +223,11 @@ public class InvestorBDI
 
         protected void sendProposals(ArrayList<Share> shares) {
             for (Share share : shares) {
-                int proposalValue = share.getHighestBidderValue() + 5;
+                int proposalValue = share.getHighestBidderValue() + 10;
                 Proposal proposal = new Proposal(share, proposalValue);
                 String proposalString = proposal.toJsonStr();
                 String manager = share.getOwnerCid();
-                log("Sending proposal to " + manager + "for " + proposalValue);
+                log("Sending proposal to " + manager + " for " + share.getCompanyName());
 
                 coms.sendProposal(name, manager, proposalString);
             }
@@ -273,8 +273,8 @@ public class InvestorBDI
 
             while (toSpendLimit > 0 && availableShares > 0) {
                 Share currentShare = allShares.get(currentShareIndex);
-                if (toSpendLimit > currentShare.getHighestBidderValue() &&
-                        currentShare.getShareAverageNextValue() > currentShare.getHighestBidderValue()) {
+                if (toSpendLimit > (currentShare.getHighestBidderValue() + 10) &&
+                        currentShare.getShareAverageNextValue() > (currentShare.getHighestBidderValue() + 10)) {
                     shares.add(currentShare);
                     toSpendLimit -= currentShare.getHighestBidderValue();
                     availableShares--;
@@ -322,13 +322,16 @@ public class InvestorBDI
 
             while (money > 0 && availableShares > 0) {
                 Share currentShare = allShares.get(currentShareIndex);
-                if (money > currentShare.getHighestBidderValue() &&
-                        currentShare.getShareAverageNextValue() > currentShare.getHighestBidderValue()) {
+                if (money > (currentShare.getHighestBidderValue() + 10) &&
+                        currentShare.getShareAverageNextValue() > (currentShare.getHighestBidderValue() + 10)) {
                     shares.add(currentShare);
                     money -= currentShare.getHighestBidderValue();
                     availableShares--;
                 }
+                currentShareIndex++;
             }
+
+            log("NUMBER OF SHARES :" + shares.size() + " vs. " + allShares.size());
 
             return shares;
         }
@@ -419,7 +422,10 @@ public class InvestorBDI
             case INVESTOR_INFO:
                 InvestorInfo investorInfo = new Gson().fromJson(msg.getJsonExtra(), InvestorInfo.class);
                 this.investorInfos.put(msg.getSenderCid(), investorInfo);
+                log(Integer.toString(agentFeature.getGoals().size()));
+                agentFeature.getGoals().forEach((goal) -> goal.drop());
                 agentFeature.dispatchTopLevelGoal(new BeTheRichestInvestorGoal());
+                log(Integer.toString(agentFeature.getGoals().size()));
                 break;
 
             case PROPOSAL_ACCEPTED:

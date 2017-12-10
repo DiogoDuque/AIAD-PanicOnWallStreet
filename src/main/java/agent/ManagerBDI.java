@@ -287,11 +287,11 @@ public class ManagerBDI
                         share.setHighestBidder(msg.getSenderCid());
                         share.setHighestBidderValue(proposal.getValue());
                         log("updated share: "+share);
-                        coms.acceptProposal(agent.getComponentIdentifier().getName(), msg.getSenderCid(), proposal.toJsonStr());
+                        coms.acceptProposal(agent.getComponentIdentifier().getLocalName(), msg.getSenderCid(), proposal.toJsonStr());
                     } else {
                         log("Rejecting proposal");
                         proposal.setShare(share);
-                        coms.rejectProposal(agent.getComponentIdentifier().getName(), msg.getSenderCid(), proposal.toJsonStr());
+                        coms.rejectProposal(agent.getComponentIdentifier().getLocalName(), msg.getSenderCid(), proposal.toJsonStr());
                     }
                 }
                 break;
@@ -317,6 +317,7 @@ public class ManagerBDI
                 } else {
                     log("Received new close proposal for "+ closeProposal.getShare());
                     long timeSinceStartOfPhase = System.currentTimeMillis() - TimerBDI.getPhaseStartTime();
+                    log("Duration so far: " + timeSinceStartOfPhase);
                     if(closeProposal.getValue() >= closeShare.getHighestBidderValue() &&
                         (timeSinceStartOfPhase/Main.NEGOTIATION_PHASE_DURATION) * closeProposal.getValue() > Main.MANAGEMENT_COST_PER_SHARE) {
                         log("Accepting close proposal");
@@ -324,10 +325,10 @@ public class ManagerBDI
                         closeShare.setHighestBidderValue(closeProposal.getValue());
                         closeShare.setAsBought();
                         log("updated share: " + closeShare);
-                        coms.acceptCloseDeal(agent.getComponentIdentifier().getName(), msg.getSenderCid(), closeProposal.toJsonStr());
+                        coms.acceptCloseDeal(agent.getComponentIdentifier().getLocalName(), msg.getSenderCid(), closeProposal.toJsonStr());
                     } else {
                         log("Rejecting proposal");
-                        coms.rejectCloseDeal(agent.getComponentIdentifier().getName(), msg.getSenderCid(), closeProposal.toJsonStr());
+                        coms.rejectCloseDeal(agent.getComponentIdentifier().getLocalName(), msg.getSenderCid(), closeProposal.toJsonStr());
                     }
                 }
                 break;
