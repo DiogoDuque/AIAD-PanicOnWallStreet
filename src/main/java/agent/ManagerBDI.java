@@ -58,7 +58,7 @@ public class ManagerBDI
         currentMoney = Main.STARTING_MONEY;
 
         Random r = new Random();
-        String myCid = agent.getComponentIdentifier().getName();
+        String myCid = agent.getComponentIdentifier().getLocalName();
         ArrayList<Company> companies = Main.getCompanies();
         ownedShares = new ArrayList<>();
 
@@ -113,7 +113,7 @@ public class ManagerBDI
     }
 
     private void parseAuctionMessage(AuctionMessage msg) {
-        String myCid = agent.getComponentIdentifier().getName();
+        String myCid = agent.getComponentIdentifier().getLocalName();
         class Plan{
             private void conservativePlan(Share share) {
                 log("Starting conservative plan");
@@ -244,7 +244,7 @@ public class ManagerBDI
      * @param msg negotation message to be parsed.
      */
     private void parseNegotiationMessage(NegotiationMessage msg) {
-        String myCid = agent.getComponentIdentifier().getName();
+        String myCid = agent.getComponentIdentifier().getLocalName();
         if(msg.getSenderCid().equals(myCid)) //if msg was sent by me
             return;
 
@@ -256,7 +256,7 @@ public class ManagerBDI
                     if(!s.isBought())
                         shares.add(s);
                 }
-                coms.sendShares(agent.getComponentIdentifier().getName(), new Gson().toJson(shares.toArray(new Share[shares.size()])));
+                coms.sendShares(agent.getComponentIdentifier().getLocalName(), new Gson().toJson(shares.toArray(new Share[shares.size()])));
 
                 break;
 
@@ -287,10 +287,10 @@ public class ManagerBDI
                     share.setHighestBidder(msg.getSenderCid());
                     share.setHighestBidderValue(proposal.getValue());
                     log("updated share: "+share);
-                    coms.acceptProposal(agent.getComponentIdentifier().getName(), msg.getSenderCid(), proposal.toJsonStr());
+                    coms.acceptProposal(agent.getComponentIdentifier().getLocalName(), msg.getSenderCid(), proposal.toJsonStr());
                 } else {
                     log("Rejecting proposal");
-                    coms.rejectProposal(agent.getComponentIdentifier().getName(), msg.getSenderCid(), proposal.toJsonStr());
+                    coms.rejectProposal(agent.getComponentIdentifier().getLocalName(), msg.getSenderCid(), proposal.toJsonStr());
                 }
                 break;
             /*

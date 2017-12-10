@@ -87,7 +87,7 @@ public class InvestorBDI
         investorInfos = new HashMap<>();
         managerInfos = new HashMap<>();
 
-        String myCid = agent.getComponentIdentifier().getName();
+        String myCid = agent.getComponentIdentifier().getLocalName();
         this.coms = (IComsService)reqServ.getRequiredService("coms").get();
         IComsService iComs = SServiceProvider.getService(agent,IComsService.class, RequiredServiceInfo.SCOPE_PLATFORM).get();
         ISubscriptionIntermediateFuture<String> sub = iComs.subscribeComs();
