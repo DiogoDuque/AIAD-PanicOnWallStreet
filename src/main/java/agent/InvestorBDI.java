@@ -438,7 +438,7 @@ public class InvestorBDI
 
                 Proposal proposalR = new Gson().fromJson(msg.getJsonExtra(), Proposal.class);
                 for (Share share : managerInfos.get(msg.getSenderCid())) {
-                    share.setHighestBidderValue(share.getHighestBidderValue() + 5);
+                    share = proposalR.getShare();
                 }
 
                 proposedShares.remove(proposalR.getShare());

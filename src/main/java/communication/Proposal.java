@@ -24,6 +24,10 @@ public class Proposal {
         return share;
     }
 
+    public void setShare(Share share) {
+        this.share = share;
+    }
+
     public int getValue() {
         return value;
     }

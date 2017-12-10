@@ -290,6 +290,7 @@ public class ManagerBDI
                         coms.acceptProposal(agent.getComponentIdentifier().getName(), msg.getSenderCid(), proposal.toJsonStr());
                     } else {
                         log("Rejecting proposal");
+                        proposal.setShare(share);
                         coms.rejectProposal(agent.getComponentIdentifier().getName(), msg.getSenderCid(), proposal.toJsonStr());
                     }
                 }
