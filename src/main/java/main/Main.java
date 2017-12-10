@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class Main {
 
-    public static final int STARTING_MONEY = 0;
+    public static final int STARTING_MONEY = 120;
 
     public static final int N_INVESTORS = 2; // number of investors in the game
     public static final int N_MANAGERS = 1; // number of managers in the game
