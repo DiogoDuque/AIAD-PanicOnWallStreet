@@ -1,9 +1,6 @@
 package agent;
 
-import assets.AuctionManager;
-import assets.Company;
-import assets.GameOverManager;
-import assets.Share;
+import assets.*;
 import com.google.gson.Gson;
 import communication.*;
 import communication.message.AuctionMessage;

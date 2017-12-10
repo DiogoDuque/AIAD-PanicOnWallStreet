@@ -1,6 +1,7 @@
 package agent;
 
 import assets.Company;
+import assets.GameInfo;
 import assets.Share;
 import com.google.gson.Gson;
 import communication.*;
@@ -101,8 +102,10 @@ public class ManagerBDI
 
                     case GAMEOVER:
                         GameOverMessage goMsg = new Gson().fromJson(result, GameOverMessage.class);
-                        if(goMsg.getMsgType().equals(GameOverMessage.MessageType.ASK_GAMEOVER_INFO))
-                            coms.sendGameOverInfo(myCid, currentMoney+"");
+                        if(goMsg.getMsgType().equals(GameOverMessage.MessageType.ASK_GAMEOVER_INFO)) {
+                            GameInfo.getInstance().setInfos(TimerBDI.getRound()+1, myCid, currentMoney);
+                            coms.sendGameOverInfo(myCid, currentMoney + "");
+                        }
                         break;
                 }
             }
@@ -247,6 +250,7 @@ public class ManagerBDI
 
         switch (msg.getMsgType()){
             case ASK_INFO:
+                GameInfo.getInstance().setInfos(TimerBDI.getRound(), myCid, currentMoney);
                 ArrayList<Share> shares = new ArrayList<>();
                 for(Share s: ownedShares){
                     if(!s.isBought())

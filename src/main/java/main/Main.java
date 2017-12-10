@@ -17,21 +17,22 @@ import java.util.Map;
 public class Main {
 
     public static final int STARTING_MONEY = 120;
+    public static final int MANAGEMENT_COST_PER_SHARE = 10; // cost a manager needs to pay per share on the Management Costs phase
 
     public static final int N_INVESTORS = 2; // number of investors in the game
     public static final int N_MANAGERS = 1; // number of managers in the game
     public static final int N_ROUNDS = 3; // number of rounds the game will have
-    public static final int MANAGEMENT_COST_PER_SHARE = 10; // cost a manager needs to pay per share on the Management Costs phase
-
-    public static final int INFO_REFRESH_RATE = 500; // in milis // 0.5s
     public static final int SHARES_ADDED_PER_ROUND = (2*N_MANAGERS) - 1;
 
+    public static final int INFO_REFRESH_RATE = 500; // in milis // 0.5s
 
     public static final int NEGOTIATION_PHASE_DURATION = 10000; // in milis // 10s
     public static final int INVESTOR_INCOME_PHASE_DURATION = 2000; // in milis // 2s
     public static final int MANAGER_INCOME_PHASE_DURATION = 2000; // in milis // 2s
     public static final int MANAGEMENT_COSTS_PHASE_DURATION = 1000; // in milis // 1s
     public static final int AUCTION_DURATION = 1500; // in milis // 1.5s
+
+    public static final String INFO_FILENAME = "PanicOnWallStreet-roundInfo.txt";
 
     private static ArrayList<Company> companies;
 
