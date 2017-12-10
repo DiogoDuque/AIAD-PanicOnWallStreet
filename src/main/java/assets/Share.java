@@ -87,6 +87,8 @@ public class Share {
         return company.minValue();
     }
 
+    public int getShareRisk(){return company.risk();};
+
     @Override
     public String toString() {
         return "Share{" + ownerCid + " -> " + company +

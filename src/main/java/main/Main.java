@@ -30,6 +30,11 @@ public class Main {
     public static final int MANAGEMENT_COSTS_PHASE_DURATION = 1000; // in milis // 1s
     public static final int AUCTION_DURATION = 1500; // in milis // 1.5s
 
+    public static final int HIGHEST_RISK = 3; // Highest risk share
+    public static final int HIGH_RISK = 2; // High risk share
+    public static final int MEDIUM_RISK = 1; // Medium risk share
+    public static final int LOW_RISK = 0; // Low risk share
+
     private static ArrayList<Company> companies;
 
 	public static void main(String[] args)
