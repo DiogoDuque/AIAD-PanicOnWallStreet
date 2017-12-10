@@ -1,5 +1,9 @@
 package communication;
 
+import communication.message.AuctionMessage;
+import communication.message.GameOverMessage;
+import communication.message.IncomeMessage;
+import communication.message.NegotiationMessage;
 import jadex.bridge.IInternalAccess;
 import jadex.bridge.service.annotation.Service;
 import jadex.bridge.service.annotation.ServiceComponent;

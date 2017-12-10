@@ -1,17 +1,15 @@
-package communication;
+package communication.message;
 
 import com.google.gson.Gson;
 
-public class AuctionMessage extends Message {
+public class GameOverMessage extends Message {
 
     /**
-     * Message types for every possible Auction Message sent.
+     * Message types for every possible GameOver Message sent.
      */
-    public enum MessageType{
-        SHARE_AUCTION,
-        BID_ON_SHARE,
-        BID_REJECTED,
-        SHARE_SOLD
+    public enum MessageType {
+        ASK_GAMEOVER_INFO,
+        SEND_GAMEOVER_INFO
     }
 
     /**
@@ -19,16 +17,15 @@ public class AuctionMessage extends Message {
      */
     private MessageType msgType;
 
-    private final String jsonExtra;
+    private String jsonExtra;
 
-    public AuctionMessage(String sender, MessageType msgType, String jsonExtra){
+    public GameOverMessage(String sender, MessageType msgType){
         super(sender);
         this.msgType = msgType;
-        this.jsonExtra = jsonExtra;
     }
 
-    public AuctionMessage(String sender, String receiver, MessageType msgType, String jsonExtra){
-        super(sender, receiver);
+    public GameOverMessage(String sender, MessageType msgType, String jsonExtra){
+        super(sender);
         this.msgType = msgType;
         this.jsonExtra = jsonExtra;
     }

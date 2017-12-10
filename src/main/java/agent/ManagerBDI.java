@@ -4,6 +4,9 @@ import assets.Company;
 import assets.Share;
 import com.google.gson.Gson;
 import communication.*;
+import communication.message.GameOverMessage;
+import communication.message.IncomeMessage;
+import communication.message.NegotiationMessage;
 import jadex.bridge.IInternalAccess;
 import jadex.bridge.service.RequiredServiceInfo;
 import jadex.bridge.service.component.IRequiredServicesFeature;
@@ -15,7 +18,6 @@ import main.Main;
 
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.*;
 
 @RequiredServices({
         @RequiredService(name="coms", type=IComsService.class, multiple=true, binding=@Binding(scope=RequiredServiceInfo.SCOPE_PLATFORM))
