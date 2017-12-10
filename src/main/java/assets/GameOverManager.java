@@ -31,8 +31,8 @@ public class GameOverManager {
             }
 
         } else {
+            numberOfManagersResponded++;
             if(value > bestManagerValue) { // if best manager so far
-                numberOfManagersResponded++;
                 bestManagerValue = value;
                 bestManagerName = name;
             }
