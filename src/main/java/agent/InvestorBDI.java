@@ -22,6 +22,7 @@ import jadex.micro.annotation.*;
 import main.Main;
 
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @RequiredServices({
         @RequiredService(name="coms", type=IComsService.class, multiple=true, binding=@Binding(scope=RequiredServiceInfo.SCOPE_PLATFORM))
@@ -59,12 +60,12 @@ public class InvestorBDI
     /**
      * Shares acquired from a manager.
      */
-    private ArrayList<Share> boughtShares;
+    private CopyOnWriteArrayList<Share> boughtShares;
 
     /**
      * Shares whose proposals have been accepted by managers. However, they can be rejected at any time, so this is a very volatile list.
      */
-    private ArrayList<Share> proposedShares;
+    private CopyOnWriteArrayList<Share> proposedShares;
 
     /**
      * Hashmap containing regularly updated info on the other investors. Info can be retrieved with the agent's name as key.
@@ -81,8 +82,8 @@ public class InvestorBDI
         name = agent.getComponentIdentifier().getLocalName();
 
         currentMoney = Main.STARTING_MONEY;
-        boughtShares = new ArrayList<>();
-        proposedShares = new ArrayList<>();
+        boughtShares = new CopyOnWriteArrayList<>();
+        proposedShares = new CopyOnWriteArrayList<>();
 
         investorInfos = new HashMap<>();
         managerInfos = new HashMap<>();
@@ -223,11 +224,12 @@ public class InvestorBDI
 
         protected void sendProposals(ArrayList<Share> shares) {
             for (Share share : shares) {
-                int proposalValue = share.getHighestBidderValue() + 1;
+                int proposalValue = share.getHighestBidderValue() + 5;
                 Proposal proposal = new Proposal(share, proposalValue);
                 String proposalString = proposal.toJsonStr();
                 String manager = share.getOwnerCid();
-                log("Sending proposal to "+manager);
+                log("Sending proposal to " + manager + " for " + share.getCompanyName());
+
                 coms.sendProposal(name, manager, proposalString);
             }
         }
@@ -264,13 +266,15 @@ public class InvestorBDI
         protected ArrayList<Share> pickShares(ArrayList<Share> allShares) {
             ArrayList<Share> shares = new ArrayList<>();
             double toSpendLimit = goal.getAdvantageToNext();
+            if (toSpendLimit < 0.5 * currentMoney) {
+                toSpendLimit = 0.5 * currentMoney;
+            }
             int availableShares = allShares.size();
-            int currentShareIndex = 0;
 
-            while (toSpendLimit > 0 && availableShares > 0) {
+            for (int currentShareIndex = 0; toSpendLimit > 0 && availableShares > 0; currentShareIndex++) {
                 Share currentShare = allShares.get(currentShareIndex);
-                if (toSpendLimit > currentShare.getHighestBidderValue() &&
-                        currentShare.getShareAverageNextValue() > currentShare.getHighestBidderValue()) {
+                if (toSpendLimit > (currentShare.getHighestBidderValue() + 5) &&
+                        currentShare.getShareAverageNextValue() > (currentShare.getHighestBidderValue() + 5)) {
                     shares.add(currentShare);
                     toSpendLimit -= currentShare.getHighestBidderValue();
                     availableShares--;
@@ -318,12 +322,13 @@ public class InvestorBDI
 
             while (money > 0 && availableShares > 0) {
                 Share currentShare = allShares.get(currentShareIndex);
-                if (money > currentShare.getHighestBidderValue() &&
-                        currentShare.getShareAverageNextValue() > currentShare.getHighestBidderValue()) {
+                if (money > (currentShare.getHighestBidderValue() + 5) &&
+                        currentShare.getShareAverageNextValue() > (currentShare.getHighestBidderValue() + 5)) {
                     shares.add(currentShare);
                     money -= currentShare.getHighestBidderValue();
                     availableShares--;
                 }
+                currentShareIndex++;
             }
 
             return shares;
@@ -361,21 +366,19 @@ public class InvestorBDI
         protected ArrayList<Share> pickShares(ArrayList<Share> allShares) {
             ArrayList<Share> shares = new ArrayList<>();
 
-            float earningsGoal = goal.getDifferenceToRichest();
             int money = currentMoney;
             int availableShares = allShares.size();
 
-            int currentShareIndex = 0;
-
-            while (earningsGoal > 0 && money > 0 && availableShares > 0) {
+            for (int currentShareIndex = 0; money > 0 && availableShares > 0; currentShareIndex++) {
                 Share currentShare = allShares.get(currentShareIndex);
-                if (money > currentShare.getHighestBidderValue()) {
+                if (money > (currentShare.getHighestBidderValue() + 5)) {
                     shares.add(currentShare);
                     money -= currentShare.getHighestBidderValue();
-                    earningsGoal -= currentShare.getHighestBidderValue();
                     availableShares--;
                 }
             }
+
+            log("Escolheu " + shares.size());
 
             return shares;
         }
@@ -397,7 +400,7 @@ public class InvestorBDI
         switch (msg.getMsgType()){
             case ASK_INFO:
                 GameInfo.getInstance().setInfos(TimerBDI.getRound(), myCid, currentMoney);
-                InvestorInfo info = new InvestorInfo(name, currentMoney, boughtShares, proposedShares);
+                InvestorInfo info = new InvestorInfo(name, currentMoney, new ArrayList<Share>(boughtShares), new ArrayList<Share>(proposedShares));
                 this.investorInfos.put(name, info);
                 coms.sendInvestorInfo(myCid, info.toJsonStr());
                 break;
@@ -414,6 +417,7 @@ public class InvestorBDI
             case INVESTOR_INFO:
                 InvestorInfo investorInfo = new Gson().fromJson(msg.getJsonExtra(), InvestorInfo.class);
                 this.investorInfos.put(msg.getSenderCid(), investorInfo);
+                agentFeature.getGoals().forEach((goal) -> goal.drop());
                 agentFeature.dispatchTopLevelGoal(new BeTheRichestInvestorGoal());
                 break;
 
@@ -424,6 +428,7 @@ public class InvestorBDI
                 Proposal proposalA = new Gson().fromJson(msg.getJsonExtra(), Proposal.class);
                 proposedShares.add(proposalA.getShare());
                 log("Proposal was accepted");
+                coms.attemptCloseDeal(myCid, msg.getSenderCid(), new Proposal(proposalA.getShare(), proposalA.getValue()).toJsonStr());
                 break;
 
             case PROPOSAL_REJECTED:
@@ -431,8 +436,28 @@ public class InvestorBDI
                     break;
 
                 Proposal proposalR = new Gson().fromJson(msg.getJsonExtra(), Proposal.class);
+                for (Share share : managerInfos.get(msg.getSenderCid())) {
+                    share.setHighestBidderValue(proposalR.getShare().getHighestBidderValue());
+                    share.setHighestBidder(proposalR.getShare().getHighestBidder());
+                }
+
                 proposedShares.remove(proposalR.getShare());
                 log("Proposal was denied");
+                break;
+
+            case CLOSE_DEAL_ACCEPT:
+                if(!myCid.equals(msg.getReceiverCid())) //if proposal is not for me
+                    break;
+
+                Proposal dealA = new Gson().fromJson(msg.getJsonExtra(), Proposal.class);
+                for (Share share : proposedShares) {
+                    if (share.equals(dealA.getShare())) {
+                        boughtShares.add(share);
+                        proposedShares.remove(share);
+                    }
+                }
+
+                log("Close deal was accepted");
                 break;
 
             default:
