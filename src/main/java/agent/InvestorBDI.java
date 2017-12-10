@@ -118,59 +118,78 @@ public class InvestorBDI
 
     @Goal
     public class BeTheRichestInvestorGoal {
-        @GoalResult
         protected ArrayList<InvestorInfo> currentInvestorsInfo;
 
-        @GoalResult
-        protected int differenceToRichest;
+        protected float ownEvaluation;
 
+        protected float differenceToRichest;
+
+        protected float advantageToNext;
+
+        /**
+         * Returns whether the investor is the richest or not.
+         * @return true if the investor is the richest investor or has the same amount of money as the richest investor and false otherwise.
+         */
         private boolean amITheRichest() {
-            if (this.currentInvestorsInfo.size() < 1) {
-                return false;
-            }
-
-            String richestInvestorName = this.currentInvestorsInfo.get(this.currentInvestorsInfo.size() - 1).getInvestorName();
-
-            return richestInvestorName.equals(InvestorBDI.this.name);
+            float richestEvaluation = this.currentInvestorsInfo.get(this.currentInvestorsInfo.size() - 1).evaluate();
+            return richestEvaluation == ownEvaluation;
         }
 
+        /**
+         * Returns whether the investor is the poorest or not.
+         * @return true if the investor is the poorest investor or has the same amount of money as the poorest investor and false otherwise.
+         */
         private boolean amIThePoorest() {
-            if (this.currentInvestorsInfo.size() < 1) {
-                return false;
-            }
-            String poorestInvestorName = this.currentInvestorsInfo.get(0).getInvestorName();
-
-            return poorestInvestorName.equals(InvestorBDI.this.name);
+            float poorestEvaluation = this.currentInvestorsInfo.get(0).evaluate();
+            return poorestEvaluation == ownEvaluation;
         }
 
         protected void setDifferenceToRichest() {
             if (amITheRichest() || this.currentInvestorsInfo.size() <= 1) {
                 this.differenceToRichest = 0;
             } else {
-                int richestInvestorMoney = this.currentInvestorsInfo.get(this.currentInvestorsInfo.size() - 1).getCurrentMoney();
+                float richestEvaluation = this.currentInvestorsInfo.get(this.currentInvestorsInfo.size() - 1).evaluate();
+                this.differenceToRichest = richestEvaluation - ownEvaluation;
+            }
+        }
 
-                for (InvestorInfo info : this.currentInvestorsInfo) {
+        protected void setAdvantageToNext() {
+            if (amIThePoorest() || this.currentInvestorsInfo.size() <= 1) {
+                this.differenceToRichest = 0;
+            } else {
+                for (int investorIndex = 0; investorIndex < this.currentInvestorsInfo.size(); investorIndex++) {
+                    InvestorInfo info = this.currentInvestorsInfo.get(investorIndex);
                     if (info.getInvestorName().equals(InvestorBDI.this.name)) {
-                        this.differenceToRichest = richestInvestorMoney - info.getCurrentMoney();
+                        InvestorInfo nextInfo = this.currentInvestorsInfo.get(investorIndex - 1);
+                        this.advantageToNext = info.evaluate() - nextInfo.evaluate();
                     }
                 }
             }
         }
 
-        public int getDifferenceToRichest() {
+        public float getDifferenceToRichest() {
             return differenceToRichest;
         }
 
+        public float getAdvantageToNext() {
+            return advantageToNext;
+        }
+
         public BeTheRichestInvestorGoal() {
-            this.currentInvestorsInfo = new ArrayList<InvestorInfo>(InvestorBDI.this.investorInfos.values());
+            this.currentInvestorsInfo = new ArrayList<>(InvestorBDI.this.investorInfos.values());
+
 
             // Sorts based on evaluation, see InvestorInfo.compareTo() method
             Collections.sort(this.currentInvestorsInfo);
 
+            this.ownEvaluation = investorInfos.get(name).evaluate();
             this.setDifferenceToRichest();
+            this.setAdvantageToNext();
 
             log("Picking a plan...");
-            if (amITheRichest()) {
+            if (amITheRichest() && amIThePoorest()) {
+                InvestorBDI.this.agentFeature.adoptPlan(new RegularPlan(this));
+            } else if (amITheRichest()) {
                 InvestorBDI.this.agentFeature.adoptPlan(new ConservativePlan(this));
             } else if (amIThePoorest()) {
                 InvestorBDI.this.agentFeature.adoptPlan(new RiskyPlan(this));
@@ -238,18 +257,16 @@ public class InvestorBDI
 
         protected ArrayList<Share> pickShares(ArrayList<Share> allShares) {
             ArrayList<Share> shares = new ArrayList<>();
-            int earningsGoal = goal.getDifferenceToRichest();
-            double money = currentMoney * 0.5;
+            double toSpendLimit = goal.getAdvantageToNext();
             int availableShares = allShares.size();
-
             int currentShareIndex = 0;
 
-            while (earningsGoal > 0 && money > 0 && availableShares > 0) {
+            while (toSpendLimit > 0 && availableShares > 0) {
                 Share currentShare = allShares.get(currentShareIndex);
-                if (money > currentShare.getHighestBidderValue()) {
+                if (toSpendLimit > currentShare.getHighestBidderValue() &&
+                        currentShare.getShareAverageValue() > currentShare.getHighestBidderValue()) {
                     shares.add(currentShare);
-                    money -= currentShare.getHighestBidderValue();
-                    earningsGoal -= currentShare.getHighestBidderValue();
+                    toSpendLimit -= currentShare.getHighestBidderValue();
                     availableShares--;
                 }
             }
@@ -288,31 +305,21 @@ public class InvestorBDI
 
         protected ArrayList<Share> pickShares(ArrayList<Share> allShares) {
             ArrayList<Share> shares = new ArrayList<>();
-            int earningsGoal = goal.getDifferenceToRichest();
-            double toSpend = 1;
-            if (earningsGoal/currentMoney == 0.0){
-                toSpend = 0.3;
-            }
-            else if (earningsGoal/currentMoney < 0.5){
-                toSpend = earningsGoal/currentMoney + 0.1;
-            }
-            else if (earningsGoal/currentMoney <= 1){
-                toSpend = earningsGoal/currentMoney;
-            }
-            double money = currentMoney * toSpend;
+            double money = currentMoney * 0.75;
             int availableShares = allShares.size();
 
             int currentShareIndex = 0;
 
             while (money > 0 && availableShares > 0) {
                 Share currentShare = allShares.get(currentShareIndex);
-                if (money > currentShare.getHighestBidderValue()) {
+                if (money > currentShare.getHighestBidderValue() &&
+                        currentShare.getShareAverageValue() > currentShare.getHighestBidderValue()) {
                     shares.add(currentShare);
                     money -= currentShare.getHighestBidderValue();
-                    earningsGoal -= currentShare.getHighestBidderValue();
                     availableShares--;
                 }
             }
+
             return shares;
         }
     }
@@ -348,7 +355,7 @@ public class InvestorBDI
         protected ArrayList<Share> pickShares(ArrayList<Share> allShares) {
             ArrayList<Share> shares = new ArrayList<>();
 
-            int earningsGoal = goal.getDifferenceToRichest();
+            float earningsGoal = goal.getDifferenceToRichest();
             int money = currentMoney;
             int availableShares = allShares.size();
 
@@ -369,10 +376,7 @@ public class InvestorBDI
     }
 
     @AgentBody
-	public void executeBody()
-	{
-        agentFeature.dispatchTopLevelGoal(new BeTheRichestInvestorGoal());
-	}
+	public void executeBody() {}
 
     /**
      * Called as a parser of messages in the Negotiation phase. Receives a message and deals with it the best way it can.
@@ -386,7 +390,8 @@ public class InvestorBDI
 
         switch (msg.getMsgType()){
             case ASK_INFO:
-                InvestorInfo info = new InvestorInfo(msg.getSenderCid(), currentMoney, boughtShares, proposedShares);
+                InvestorInfo info = new InvestorInfo(name, currentMoney, boughtShares, proposedShares);
+                this.investorInfos.put(name, info);
                 coms.sendInvestorInfo(myCid, info.toJsonStr());
                 break;
 
@@ -402,9 +407,10 @@ public class InvestorBDI
             case INVESTOR_INFO:
                 InvestorInfo investorInfo = new Gson().fromJson(msg.getJsonExtra(), InvestorInfo.class);
                 this.investorInfos.put(msg.getSenderCid(), investorInfo);
+                agentFeature.dispatchTopLevelGoal(new BeTheRichestInvestorGoal());
                 break;
 
-            /*case PROPOSAL_ACCEPTED:
+            case PROPOSAL_ACCEPTED:
                 if(!msg.getReceiverCid().equals(myCid)) //if proposal is not for me
                     break;
 
@@ -420,7 +426,7 @@ public class InvestorBDI
                 Proposal proposalR = new Gson().fromJson(msg.getJsonExtra(), Proposal.class);
                 proposedShares.remove(proposalR.getShare());
                 log("Proposal was denied");
-                break;*/
+                break;
 
             default:
                 break;
