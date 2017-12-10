@@ -275,20 +275,59 @@ public class ManagerBDI
                 } else if(share.isBought()){
                     log("Received proposal for share already owned. #sorrynotsorry");
                     coms.rejectProposal(myCid, msg.getSenderCid(), new Proposal(share,proposal.getValue()).toJsonStr());
-                }
-
-                log("Received new proposal for "+proposal.getShare());
-                if(proposal.getValue() > share.getHighestBidderValue()){ //TODO better decision
-                    log("Accepting proposal");
-                    share.setHighestBidder(msg.getSenderCid());
-                    share.setHighestBidderValue(proposal.getValue());
-                    log("updated share: "+share);
-                    coms.acceptProposal(agent.getComponentIdentifier().getName(), msg.getSenderCid(), proposal.toJsonStr());
                 } else {
-                    log("Rejecting proposal");
-                    coms.rejectProposal(agent.getComponentIdentifier().getName(), msg.getSenderCid(), proposal.toJsonStr());
+                    log("Received new proposal for " + proposal.getShare());
+                    log(proposal.getValue() + " vs. " + share.getHighestBidderValue());
+                    if(proposal.getValue() > share.getHighestBidderValue()){ //TODO better decision
+                        log("Accepting proposal");
+                        share.setHighestBidder(msg.getSenderCid());
+                        share.setHighestBidderValue(proposal.getValue());
+                        log("updated share: "+share);
+                        coms.acceptProposal(agent.getComponentIdentifier().getName(), msg.getSenderCid(), proposal.toJsonStr());
+                    } else {
+                        log("Rejecting proposal");
+                        coms.rejectProposal(agent.getComponentIdentifier().getName(), msg.getSenderCid(), proposal.toJsonStr());
+                    }
                 }
                 break;
+            case CLOSE_DEAL:
+                if(!msg.getReceiverCid().equals(myCid)) //if proposal is not for me
+                    break;
+
+                Proposal closeProposal = new Gson().fromJson(msg.getJsonExtra(), Proposal.class);
+                Share closeShare = null;
+                for(Share s: ownedShares){
+                    if(closeProposal.getShare().equals(s)){
+                        closeShare = s;
+                        break;
+                    }
+                }
+
+                if(closeShare == null){
+                    log("ERROR: Received close proposal for share not owned... Rejecting");
+                    coms.rejectProposal(myCid, msg.getSenderCid(), new Proposal(closeShare,closeProposal.getValue()).toJsonStr());
+                    break;
+                } else if(closeShare.isBought()){
+                    log("Received close proposal for share already owned. #sorrynotsorry");
+                    coms.rejectProposal(myCid, msg.getSenderCid(), new Proposal(closeShare,closeProposal.getValue()).toJsonStr());
+                } else {
+                    log("Received new close proposal for "+ closeProposal.getShare());
+                    long timeSinceStartOfPhase = System.currentTimeMillis() - TimerBDI.getPhaseStartTime();
+                    if(closeProposal.getValue() >= closeShare.getHighestBidderValue() &&
+                        (timeSinceStartOfPhase/Main.NEGOTIATION_PHASE_DURATION) * closeProposal.getValue() > Main.MANAGEMENT_COST_PER_SHARE) {
+                        log("Accepting close proposal");
+                        closeShare.setHighestBidder(msg.getSenderCid());
+                        closeShare.setHighestBidderValue(closeProposal.getValue());
+                        closeShare.setAsBought();
+                        log("updated share: " + closeShare);
+                        coms.acceptCloseDeal(agent.getComponentIdentifier().getName(), msg.getSenderCid(), closeProposal.toJsonStr());
+                    } else {
+                        log("Rejecting proposal");
+                        coms.rejectCloseDeal(agent.getComponentIdentifier().getName(), msg.getSenderCid(), closeProposal.toJsonStr());
+                    }
+                }
+                break;
+
             /*
             case PROPOSAL_REJECTED:
                 if(!msg.getReceiverCid().equals(myCid)) //if proposal is not for me

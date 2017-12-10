@@ -59,7 +59,7 @@ public class TimerBDI {
     /**
      * Will always contain the system time at which the current Game Phase started.
      */
-    private long phaseStartTime =-1;
+    private static long phaseStartTime =-1;
 
     /**
      * Communication service.
@@ -266,6 +266,10 @@ public class TimerBDI {
 
     static int getRound(){
         return round;
+    }
+
+    static long getPhaseStartTime () {
+        return phaseStartTime;
     }
 
     /**

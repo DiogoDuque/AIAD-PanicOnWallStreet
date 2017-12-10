@@ -224,7 +224,8 @@ public class InvestorBDI
                 Proposal proposal = new Proposal(share, proposalValue);
                 String proposalString = proposal.toJsonStr();
                 String manager = share.getOwnerCid();
-                log("Sending proposal to "+manager);
+                log("Sending proposal to " + manager + "for " + proposalValue);
+
                 coms.sendProposal(name, manager, proposalString);
             }
         }
@@ -420,6 +421,7 @@ public class InvestorBDI
                 Proposal proposalA = new Gson().fromJson(msg.getJsonExtra(), Proposal.class);
                 proposedShares.add(proposalA.getShare());
                 log("Proposal was accepted");
+                coms.attemptCloseDeal(myCid, msg.getSenderCid(), new Proposal(proposalA.getShare(), proposalA.getValue()).toJsonStr());
                 break;
 
             case PROPOSAL_REJECTED:
