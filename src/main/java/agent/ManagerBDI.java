@@ -1,6 +1,7 @@
 package agent;
 
 import assets.Company;
+import assets.GameInfo;
 import assets.Share;
 import com.google.gson.Gson;
 import communication.*;
@@ -57,7 +58,7 @@ public class ManagerBDI
         currentMoney = Main.STARTING_MONEY;
 
         Random r = new Random();
-        String myCid = agent.getComponentIdentifier().getName();
+        String myCid = agent.getComponentIdentifier().getLocalName();
         ArrayList<Company> companies = Main.getCompanies();
         ownedShares = new ArrayList<>();
 
@@ -101,8 +102,10 @@ public class ManagerBDI
 
                     case GAMEOVER:
                         GameOverMessage goMsg = new Gson().fromJson(result, GameOverMessage.class);
-                        if(goMsg.getMsgType().equals(GameOverMessage.MessageType.ASK_GAMEOVER_INFO))
-                            coms.sendGameOverInfo(myCid, currentMoney+"");
+                        if(goMsg.getMsgType().equals(GameOverMessage.MessageType.ASK_GAMEOVER_INFO)) {
+                            GameInfo.getInstance().setInfos(TimerBDI.getRound()+1, myCid, currentMoney);
+                            coms.sendGameOverInfo(myCid, currentMoney + "");
+                        }
                         break;
                 }
             }
@@ -110,7 +113,7 @@ public class ManagerBDI
     }
 
     private void parseAuctionMessage(AuctionMessage msg) {
-        String myCid = agent.getComponentIdentifier().getName();
+        String myCid = agent.getComponentIdentifier().getLocalName();
         class Plan{
             private void conservativePlan(Share share) {
                 log("Starting conservative plan");
@@ -241,18 +244,19 @@ public class ManagerBDI
      * @param msg negotation message to be parsed.
      */
     private void parseNegotiationMessage(NegotiationMessage msg) {
-        String myCid = agent.getComponentIdentifier().getName();
+        String myCid = agent.getComponentIdentifier().getLocalName();
         if(msg.getSenderCid().equals(myCid)) //if msg was sent by me
             return;
 
         switch (msg.getMsgType()){
             case ASK_INFO:
+                GameInfo.getInstance().setInfos(TimerBDI.getRound(), myCid, currentMoney);
                 ArrayList<Share> shares = new ArrayList<>();
                 for(Share s: ownedShares){
                     if(!s.isBought())
                         shares.add(s);
                 }
-                coms.sendShares(agent.getComponentIdentifier().getName(), new Gson().toJson(shares.toArray(new Share[shares.size()])));
+                coms.sendShares(agent.getComponentIdentifier().getLocalName(), new Gson().toJson(shares.toArray(new Share[shares.size()])));
 
                 break;
 
@@ -293,7 +297,6 @@ public class ManagerBDI
             case CLOSE_DEAL:
                 if(!msg.getReceiverCid().equals(myCid)) //if proposal is not for me
                     break;
-
                 Proposal closeProposal = new Gson().fromJson(msg.getJsonExtra(), Proposal.class);
                 Share closeShare = null;
                 for(Share s: ownedShares){

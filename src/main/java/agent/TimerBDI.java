@@ -1,9 +1,6 @@
 package agent;
 
-import assets.AuctionManager;
-import assets.Company;
-import assets.GameOverManager;
-import assets.Share;
+import assets.*;
 import com.google.gson.Gson;
 import communication.*;
 import communication.message.AuctionMessage;
@@ -79,7 +76,7 @@ public class TimerBDI {
     @AgentCreated
     public void init() {
         round = 1;
-        String myCid = agent.getComponentIdentifier().getName();
+        String myCid = agent.getComponentIdentifier().getLocalName();
         this.coms = (IComsService)reqServ.getRequiredService("coms").get();
         IComsService iComs = SServiceProvider.getService(agent,IComsService.class, RequiredServiceInfo.SCOPE_PLATFORM).get();
         ISubscriptionIntermediateFuture<String> sub = iComs.subscribeComs();
@@ -131,7 +128,7 @@ public class TimerBDI {
 
     @AgentBody
     public void body() {
-        String myCid = agent.getComponentIdentifier().getName();
+        String myCid = agent.getComponentIdentifier().getLocalName();
         gamePhase = GamePhase.NEGOTIATION;
         log("Game is about to start");
     }
@@ -147,7 +144,7 @@ public class TimerBDI {
         }
 
         long timeAfterPhaseStart = currentTime - phaseStartTime;
-        String myCid = agent.getComponentIdentifier().getName();
+        String myCid = agent.getComponentIdentifier().getLocalName();
 
         boolean changePhase = false;
         do {
