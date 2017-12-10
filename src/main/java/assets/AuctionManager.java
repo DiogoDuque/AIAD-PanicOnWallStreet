@@ -50,7 +50,8 @@ public class AuctionManager {
             String oldHighestBidder = share.getHighestBidder();
             share.setHighestBidderValue(proposal.getValue());
             share.setHighestBidder(sender);
-            coms.rejectBid(myCid, oldHighestBidder, share.toJsonStr());
+            if(oldHighestBidder != null)
+                coms.rejectBid(myCid, oldHighestBidder, share.toJsonStr());
         }
         lastBidTime = System.currentTimeMillis();
     }
