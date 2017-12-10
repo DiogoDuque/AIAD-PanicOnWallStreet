@@ -12,11 +12,6 @@ public abstract class Message {
      */
     private String receiverCid;
 
-    /**
-     * (Not always required) JSON string containing extra information, regarding the specific type of message.
-     */
-    private String jsonExtra;
-
     public Message(String senderCid, String receiverCid) {
         this.senderCid = senderCid;
         this.receiverCid = receiverCid;
