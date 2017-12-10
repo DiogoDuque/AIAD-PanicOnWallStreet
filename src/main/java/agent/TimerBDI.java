@@ -69,17 +69,12 @@ public class TimerBDI {
     /**
      * Current round of the game.
      */
-    private int round;
+    private static int round;
 
     /**
      * Current Game Phase.
      */
     private static GamePhase gamePhase;
-
-    /**
-     * Used to handle the auctionManager phase.
-     */
-    private AuctionManager auctionManager;
 
     @AgentCreated
     public void init() {
@@ -242,7 +237,7 @@ public class TimerBDI {
                         Random r = new Random();
                         ArrayList<Company> companies = Main.getCompanies();
                         ArrayList<Share> shares = new ArrayList<>();
-                        for(int i = 0; i < 2*Main.N_MANAGERS-1; i++){
+                        for(int i = 0; i < Main.SHARES_ADDED_PER_ROUND; i++){
                             Share share = new Share(companies.get(r.nextInt(companies.size())), myCid);
                             shares.add(share);
                         }
@@ -267,6 +262,10 @@ public class TimerBDI {
 
     static GamePhase getGamePhase(){
         return gamePhase;
+    }
+
+    static int getRound(){
+        return round;
     }
 
     /**

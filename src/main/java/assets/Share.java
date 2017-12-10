@@ -75,7 +75,7 @@ public class Share {
      * Calculates the average value that will come out when the dices are rolled.
      * @return average of the next value after dice roll.
      */
-    public float getShareAverageValue(){
+    public float getShareAverageNextValue(){
         return company.getAverageNextValue();
     }
 
@@ -110,5 +110,9 @@ public class Share {
 
     public String toJsonStr() {
         return new Gson().toJson(this);
+    }
+
+    public Company getCompany() {
+        return company;
     }
 }
