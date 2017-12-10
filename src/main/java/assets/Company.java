@@ -50,14 +50,16 @@ public class Company {
      * @return average of the next value after dice roll.
      */
     float getAverageNextValue() {
-        int averageValue=0;
+        int averageValue = 0;
 
-        for(int diceVal: diceValues){
-            int index = currIndex+diceVal;
-            if(index<0)
+        for (int diceVal : diceValues) {
+            int index = currIndex + diceVal;
+
+            if (index < 0) {
                 index = 0;
-            else if(index >= values.length)
-                index = values.length-1;
+            } else if (index >= values.length) {
+                index = values.length - 1;
+            }
 
             averageValue += values[index];
         }
