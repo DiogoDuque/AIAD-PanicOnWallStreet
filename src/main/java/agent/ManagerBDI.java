@@ -318,8 +318,11 @@ public class ManagerBDI
                     log("Received new close proposal for "+ closeProposal.getShare());
                     long timeSinceStartOfPhase = System.currentTimeMillis() - TimerBDI.getPhaseStartTime();
                     log("Duration so far: " + timeSinceStartOfPhase);
-                    if(closeProposal.getValue() >= closeShare.getHighestBidderValue() &&
-                        (timeSinceStartOfPhase/Main.NEGOTIATION_PHASE_DURATION) * closeProposal.getValue() > Main.MANAGEMENT_COST_PER_SHARE) {
+
+                    float closeThreshold = (closeProposal.getShare().getShareAverageNextValue() + Main.MANAGEMENT_COST_PER_SHARE) / 2 + Main.MANAGEMENT_COST_PER_SHARE;
+
+                    if(msg.getSenderCid().equals(closeShare.getHighestBidder()) &&
+                        (closeProposal.getValue() > closeThreshold - closeThreshold * (timeSinceStartOfPhase/Main.NEGOTIATION_PHASE_DURATION))) {
                         log("Accepting close proposal");
                         closeShare.setHighestBidder(msg.getSenderCid());
                         closeShare.setHighestBidderValue(closeProposal.getValue());

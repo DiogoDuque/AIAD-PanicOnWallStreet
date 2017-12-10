@@ -223,7 +223,7 @@ public class InvestorBDI
 
         protected void sendProposals(ArrayList<Share> shares) {
             for (Share share : shares) {
-                int proposalValue = share.getHighestBidderValue() + 10;
+                int proposalValue = share.getHighestBidderValue() + 5;
                 Proposal proposal = new Proposal(share, proposalValue);
                 String proposalString = proposal.toJsonStr();
                 String manager = share.getOwnerCid();
@@ -323,7 +323,7 @@ public class InvestorBDI
             while (money > 0 && availableShares > 0) {
                 Share currentShare = allShares.get(currentShareIndex);
                 if (money > (currentShare.getHighestBidderValue() + 10) &&
-                        currentShare.getShareAverageNextValue() > (currentShare.getHighestBidderValue() + 10)) {
+                        currentShare.getShareAverageNextValue() > (currentShare.getHighestBidderValue() + 5)) {
                     shares.add(currentShare);
                     money -= currentShare.getHighestBidderValue();
                     availableShares--;
@@ -384,6 +384,8 @@ public class InvestorBDI
                 }
             }
 
+            log("Escolheu " + shares.size());
+
             return shares;
         }
     }
@@ -424,6 +426,7 @@ public class InvestorBDI
                 this.investorInfos.put(msg.getSenderCid(), investorInfo);
                 log(Integer.toString(agentFeature.getGoals().size()));
                 agentFeature.getGoals().forEach((goal) -> goal.drop());
+                log(Integer.toString(agentFeature.getGoals().size()));
                 agentFeature.dispatchTopLevelGoal(new BeTheRichestInvestorGoal());
                 log(Integer.toString(agentFeature.getGoals().size()));
                 break;
@@ -444,7 +447,8 @@ public class InvestorBDI
 
                 Proposal proposalR = new Gson().fromJson(msg.getJsonExtra(), Proposal.class);
                 for (Share share : managerInfos.get(msg.getSenderCid())) {
-                    share = proposalR.getShare();
+                    share.setHighestBidderValue(proposalR.getShare().getHighestBidderValue());
+                    share.setHighestBidder(proposalR.getShare().getHighestBidder());
                 }
 
                 proposedShares.remove(proposalR.getShare());
