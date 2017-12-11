@@ -101,8 +101,9 @@ public class InvestorBDI
         agent_type = Integer.parseInt(name.substring(name.length() - 1));
         log("I'm type " + agent_type);
 
+        // todos os agentes para além do quarto são inteligentes
         if (agent_type > 4) {
-            agent_type = 4;
+            agent_type = 1;
         }
 
         String myCid = agent.getComponentIdentifier().getLocalName();
