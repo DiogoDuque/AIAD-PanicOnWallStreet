@@ -1,0 +1,32 @@
+# Each line was generated during the negotiation phase, except for the last ones, which was generated right before the end of the program.
+
+Round: 1; player: Investor1; money:120
+Round: 1; player: Investor2; money:120
+Round: 1; player: Investor3; money:120
+Round: 1; player: Manager2; money:120
+Round: 1; player: Manager1; money:120
+Round: 2; player: Investor1; money:130
+Round: 2; player: Investor2; money:120
+Round: 2; player: Investor3; money:210
+Round: 2; player: Manager2; money:170
+Round: 2; player: Manager1; money:180
+Round: 3; player: Investor1; money:140
+Round: 3; player: Investor2; money:120
+Round: 3; player: Investor3; money:300
+Round: 3; player: Manager2; money:220
+Round: 3; player: Manager1; money:260
+Round: 4; player: Investor1; money:150
+Round: 4; player: Investor2; money:120
+Round: 4; player: Investor3; money:380
+Round: 4; player: Manager2; money:270
+Round: 4; player: Manager1; money:320
+Round: 5; player: Investor1; money:160
+Round: 5; player: Investor2; money:120
+Round: 5; player: Investor3; money:470
+Round: 5; player: Manager2; money:320
+Round: 5; player: Manager1; money:360
+Round: 6; player: Investor1; money:170
+Round: 6; player: Investor2; money:120
+Round: 6; player: Investor3; money:560
+Round: 6; player: Manager2; money:370
+Round: 6; player: Manager1; money:370
