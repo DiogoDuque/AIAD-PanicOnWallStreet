@@ -1,6 +1,8 @@
 package main;
 
+import agent.InvestorBDI;
 import assets.Company;
+import communication.InvestorInfo;
 import jadex.base.PlatformConfiguration;
 import jadex.base.Starter;
 import jadex.bridge.IComponentIdentifier;
@@ -11,6 +13,7 @@ import jadex.commons.future.IFuture;
 import jadex.commons.future.ITuple2Future;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class Main {
@@ -18,7 +21,7 @@ public class Main {
     public static final int STARTING_MONEY = 120;
     public static final int MANAGEMENT_COST_PER_SHARE = 10; // cost a manager needs to pay per share on the Management Costs phase
 
-    public static final int N_INVESTORS = 3; // number of investors in the game
+    public static final int N_INVESTORS = 4; // number of investors in the game
     public static final int N_MANAGERS = 2; // number of managers in the game
     public static final int N_ROUNDS = 5; // number of rounds the game will have
     public static final int SHARES_ADDED_PER_ROUND = (2*N_MANAGERS) - 1;

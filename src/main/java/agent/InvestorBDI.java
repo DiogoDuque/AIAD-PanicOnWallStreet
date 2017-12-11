@@ -42,6 +42,16 @@ public class InvestorBDI
     @AgentFeature
     protected IBDIAgentFeature agentFeature;
 
+    public final static int INTELLIGENT_TYPE = 1;
+    public final static int REGULAR_TYPE = 2;
+    public final static int CONSERVATIVE_TYPE = 3;
+    public final static int RISKY_TYPE = 4;
+
+    /**
+     * Agent type.
+     */
+    protected int agent_type;
+
     /**
      * Communication service.
      */
@@ -87,6 +97,13 @@ public class InvestorBDI
 
         investorInfos = new HashMap<>();
         managerInfos = new HashMap<>();
+
+        agent_type = Integer.parseInt(name.substring(name.length() - 1));
+        log("I'm type " + agent_type);
+
+        if (agent_type > 4) {
+            agent_type = 4;
+        }
 
         String myCid = agent.getComponentIdentifier().getLocalName();
         this.coms = (IComsService)reqServ.getRequiredService("coms").get();
@@ -192,16 +209,25 @@ public class InvestorBDI
             this.setDifferenceToRichest();
             this.setAdvantageToNext();
 
-            log("Picking a plan...");
-            if (amITheRichest() && amIThePoorest()) {
-                InvestorBDI.this.agentFeature.adoptPlan(new RegularPlan(this));
-            } else if (amITheRichest()) {
-                InvestorBDI.this.agentFeature.adoptPlan(new ConservativePlan(this));
-            } else if (amIThePoorest()) {
+            if (agent_type == RISKY_TYPE) {
                 InvestorBDI.this.agentFeature.adoptPlan(new RiskyPlan(this));
-            } else {
+            } else if (agent_type == CONSERVATIVE_TYPE) {
+                InvestorBDI.this.agentFeature.adoptPlan(new ConservativePlan(this));
+            } else if (agent_type == REGULAR_TYPE) {
                 InvestorBDI.this.agentFeature.adoptPlan(new RegularPlan(this));
+            } else if (agent_type == INTELLIGENT_TYPE) {
+                log("Picking a plan...");
+                if (amITheRichest() && amIThePoorest()) {
+                    InvestorBDI.this.agentFeature.adoptPlan(new RegularPlan(this));
+                } else if (amITheRichest()) {
+                    InvestorBDI.this.agentFeature.adoptPlan(new ConservativePlan(this));
+                } else if (amIThePoorest()) {
+                    InvestorBDI.this.agentFeature.adoptPlan(new RiskyPlan(this));
+                } else {
+                    InvestorBDI.this.agentFeature.adoptPlan(new RegularPlan(this));
+                }
             }
+
         }
     }
 
@@ -376,8 +402,6 @@ public class InvestorBDI
                     availableShares--;
                 }
             }
-
-            log("Escolheu " + shares.size());
 
             return shares;
         }
